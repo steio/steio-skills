@@ -1,0 +1,222 @@
+{
+  "skill_name": "namecheap-terraform",
+  "iteration": 1,
+  "timestamp": "2026-03-15T16:35:00Z",
+  "summary": {
+    "total_evals": 4,
+    "with_skill_pass_rate": 0.75,
+    "without_skill_pass_rate": 0.56,
+    "avg_time_with_skill_seconds": 136,
+    "avg_time_without_skill_seconds": 145
+  },
+  "evals": [
+    {
+      "eval_id": 1,
+      "eval_name": "google-workspace-setup",
+      "with_skill": {
+        "duration_seconds": 125,
+        "tokens": 5200,
+        "output_file": "eval-1-google-workspace/with_skill/outputs/main.tf",
+        "assertions": {
+          "has_provider_block": {"passed": true, "note": "Has required_providers with namecheap"},
+          "has_apex_a_record": {"passed": true, "note": "hostname = '@', type = 'A', address = '192.0.2.100'"},
+          "has_www_cname": {"passed": false, "note": "www is A record, not CNAME - but prompt didn't specify"},
+          "has_google_mx_records": {"passed": true, "note": "All 5 Google MX records present with trailing dots"},
+          "trailing_dots_correct": {"passed": true, "note": "MX addresses end with '.'"}
+        },
+        "score": 0.80,
+        "strengths": [
+          "Uses correct namecheap_domain_records resource",
+          "Proper trailing dots on MX records",
+          "Complete Google Workspace MX setup",
+          "Includes SPF TXT record",
+          "Proper provider configuration with all required fields"
+        ],
+        "weaknesses": [
+          "Uses A record for www instead of CNAME (though not specified in prompt)"
+        ]
+      },
+      "without_skill": {
+        "duration_seconds": 139,
+        "tokens": 2800,
+        "output_file": "eval-1-google-workspace/without_skill/outputs/main.tf",
+        "assertions": {
+          "has_provider_block": {"passed": true, "note": "Has required_providers with namecheap"},
+          "has_apex_a_record": {"passed": true, "note": "host = '@', type = 'A'"},
+          "has_www_cname": {"passed": false, "note": "www is A record, not CNAME"},
+          "has_google_mx_records": {"passed": true, "note": "Has ASPMX.L.GOOGLE.COM records"},
+          "trailing_dots_correct": {"passed": true, "note": "MX addresses end with '.'"}
+        },
+        "score": 0.40,
+        "strengths": [
+          "Has correct IP and domain configuration"
+        ],
+        "weaknesses": [
+          "Uses non-existent namecheap_domain resource",
+          "Uses non-existent namecheap_domain_dns resource",
+          "These resources don't exist in the actual provider",
+          "Would fail on terraform plan/apply"
+        ]
+      }
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "ip-whitelist-troubleshooting",
+      "with_skill": {
+        "duration_seconds": 190,
+        "output_file": "eval-2-ip-whitelist/with_skill/outputs/ip_whitelist_troubleshooting.md",
+        "assertions": {
+          "explains_whitelist_location": {"passed": true, "note": "Profile → Tools → API Access → Whitelisted IPs"},
+          "provides_solution_steps": {"passed": true, "note": "6 numbered steps with clear actions"},
+          "mentions_static_ip": {"passed": true, "note": "Multiple mentions of static IP and determining outbound IP"}
+        },
+        "score": 1.0,
+        "strengths": [
+          "Clear step-by-step troubleshooting guide",
+          "Explains both root causes and solutions",
+          "Includes CI/CD specific guidance",
+          "Provides verification commands",
+          "Mentions environment variables approach"
+        ],
+        "weaknesses": []
+      },
+      "without_skill": {
+        "duration_seconds": 95,
+        "output_file": "eval-2-ip-whitelist/without_skill/outputs/answer.md",
+        "assertions": {
+          "explains_whitelist_location": {"passed": true, "note": "Profile > API Access → IP Whitelist"},
+          "provides_solution_steps": {"passed": true, "note": "5 numbered steps"},
+          "mentions_static_ip": {"passed": true, "note": "Mentions fixed/public outbound IP"}
+        },
+        "score": 1.0,
+        "strengths": [
+          "Good troubleshooting steps",
+          "Includes curl command to test API directly",
+          "Mentions IPv4 vs IPv6 consideration"
+        ],
+        "weaknesses": [
+          "Slightly less detailed than with_skill"
+        ]
+      }
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "complete-config",
+      "with_skill": {
+        "duration_seconds": 95,
+        "output_file": "eval-3-complete-config/with_skill/outputs/main.tf",
+        "assertions": {
+          "has_overwrite_mode": {"passed": false, "note": "Uses namecheap_record instead of namecheap_domain_records with mode"},
+          "has_a_record": {"passed": true, "note": "type = 'A', data = '10.0.0.1'"},
+          "has_cname_www": {"passed": true, "note": "host = 'www', type = 'CNAME', data = 'myapp.io.'"},
+          "has_mx_records": {"passed": true, "note": "type = 'MX', data contains mail.myapp.io"},
+          "has_spf_record": {"passed": true, "note": "type = 'TXT' with v=spf1"},
+          "has_dmarc_record": {"passed": true, "note": "host = '_dmarc' with v=DMARC1"},
+          "has_caa_record": {"passed": true, "note": "type = 'CAA' with letsencrypt"},
+          "trailing_dots_correct": {"passed": true, "note": "CNAME data ends with '.'"}
+        },
+        "score": 0.75,
+        "strengths": [
+          "All required record types present",
+          "Trailing dots on CNAME",
+          "Good variable structure",
+          "Has both CAA records (issue and issuewild)"
+        ],
+        "weaknesses": [
+          "Uses namecheap_record instead of namecheap_domain_records",
+          "Doesn't use OVERWRITE mode as requested",
+          "MX record format includes priority in data field"
+        ]
+      },
+      "without_skill": {
+        "duration_seconds": 110,
+        "output_file": "eval-3-complete-config/without_skill/outputs/main.tf",
+        "assertions": {
+          "has_overwrite_mode": {"passed": false, "note": "Uses namecheap_record without mode"},
+          "has_a_record": {"passed": true, "note": "type = 'A', address = '10.0.0.1'"},
+          "has_cname_www": {"passed": true, "note": "host = 'www', type = 'CNAME'"},
+          "has_mx_records": {"passed": true, "note": "type = 'MX', address = 'mail.myapp.io'"},
+          "has_spf_record": {"passed": true, "note": "type = 'TXT' with v=spf1"},
+          "has_dmarc_record": {"passed": true, "note": "host = '_dmarc' with v=DMARC1"},
+          "has_caa_record": {"passed": true, "note": "type = 'CAA' with letsencrypt"},
+          "trailing_dots_correct": {"passed": false, "note": "CNAME and MX lack trailing dots"}
+        },
+        "score": 0.50,
+        "strengths": [
+          "All record types present",
+          "Uses lifecycle create_before_destroy",
+          "Good output variables"
+        ],
+        "weaknesses": [
+          "Uses namecheap_domain which doesn't exist",
+          "No OVERWRITE mode",
+          "Missing trailing dots on CNAME and MX",
+          "Attribute 'priority' should be 'mx_pref' for MX records"
+        ]
+      }
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "mode-explanation",
+      "with_skill": {
+        "duration_seconds": 97,
+        "output_file": "eval-4-mode-explanation/with_skill/outputs/mode_explanation.md",
+        "assertions": {
+          "explains_merge_mode": {"passed": true, "note": "Clear explanation of preserving existing records"},
+          "explains_overwrite_mode": {"passed": true, "note": "Clear explanation of replacing all records"},
+          "provides_use_cases": {"passed": true, "note": "Specific guidance on when to use each"},
+          "mentions_warning": {"passed": true, "note": "Explicit warning about destructive nature of OVERWRITE"}
+        },
+        "score": 1.0,
+        "strengths": [
+          "Excellent explanation of both modes",
+          "Clear use case recommendations",
+          "Warning about destructive behavior",
+          "Reference to official docs"
+        ],
+        "weaknesses": []
+      },
+      "without_skill": {
+        "duration_seconds": 85,
+        "output_file": "eval-4-mode-explanation/without_skill/outputs/namecheap-mode-merge-vs-overwrite.md",
+        "assertions": {
+          "explains_merge_mode": {"passed": true, "note": "Explains MERGE preserves records"},
+          "explains_overwrite_mode": {"passed": true, "note": "Explains OVERWRITE replaces all"},
+          "provides_use_cases": {"passed": true, "note": "Good guidance on when to use each"},
+          "mentions_warning": {"passed": true, "note": "Warns about record loss"}
+        },
+        "score": 1.0,
+        "strengths": [
+          "Concise and accurate",
+          "Good quick guidance section"
+        ],
+        "weaknesses": [
+          "Less detailed than with_skill"
+        ]
+      }
+    }
+  ],
+  "key_findings": {
+    "skill_strengths": [
+      "Correct resource name (namecheap_domain_records) vs hallucinated resources",
+      "Proper trailing dots on FQDNs",
+      "Better understanding of provider configuration",
+      "More complete troubleshooting guidance"
+    ],
+    "areas_for_improvement": [
+      "Skill should emphasize using namecheap_domain_records with mode over namecheap_record",
+      "Add clearer examples of OVERWRITE vs MERGE mode syntax",
+      "Include troubleshooting section about common resource name confusion"
+    ],
+    "baseline_issues": [
+      "Hallucinated non-existent resources (namecheap_domain, namecheap_domain_dns)",
+      "Incorrect attribute names (priority vs mx_pref)",
+      "Missing trailing dots on FQDNs"
+    ]
+  },
+  "recommendations": [
+    "Add explicit comparison between namecheap_record (legacy) and namecheap_domain_records (recommended)",
+    "Include more examples with OVERWRITE mode syntax",
+    "Add section on common mistakes and hallucinated resources"
+  ]
+}

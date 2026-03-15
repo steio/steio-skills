@@ -1,0 +1,47 @@
+{
+  "eval_id": 3,
+  "eval_name": "complete-config",
+  "prompt": "Create a Terraform configuration for my domain myapp.io that has: an A record pointing to 10.0.0.1, a CNAME for www, MX records for email at mail.myapp.io, SPF and DMARC records, and a CAA record for Let's Encrypt. Use OVERWRITE mode.",
+  "assertions": [
+    {
+      "name": "has_overwrite_mode",
+      "description": "Configuration uses OVERWRITE mode",
+      "check": "mode = \"OVERWRITE\""
+    },
+    {
+      "name": "has_a_record",
+      "description": "Configuration has A record for apex with correct IP",
+      "check": "type = 'A' and address = '10.0.0.1'"
+    },
+    {
+      "name": "has_cname_www",
+      "description": "Configuration has CNAME for www",
+      "check": "hostname = 'www' and type = 'CNAME'"
+    },
+    {
+      "name": "has_mx_records",
+      "description": "Configuration has MX records for mail.myapp.io",
+      "check": "type = 'MX' and address contains 'mail.myapp.io'"
+    },
+    {
+      "name": "has_spf_record",
+      "description": "Configuration has SPF TXT record",
+      "check": "type = 'TXT' and address contains 'v=spf1'"
+    },
+    {
+      "name": "has_dmarc_record",
+      "description": "Configuration has DMARC TXT record",
+      "check": "hostname contains '_dmarc' and address contains 'v=DMARC1'"
+    },
+    {
+      "name": "has_caa_record",
+      "description": "Configuration has CAA record for Let's Encrypt",
+      "check": "type = 'CAA' and address contains 'letsencrypt'"
+    },
+    {
+      "name": "trailing_dots_correct",
+      "description": "CNAME and MX addresses have trailing dots",
+      "check": "CNAME and MX addresses end with '.'"
+    }
+  ]
+}

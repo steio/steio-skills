@@ -1,0 +1,12 @@
+{
+  "name": "steio-skills/namecheap-terraform",
+  "version": "1.0.1",
+  "summary": "Manage Namecheap DNS records and nameservers using Terraform. Covers provider configuration, DNS record types (A, AAAA, CNAME, MX, TXT, NS, CAA, ALIAS), MERGE vs OVERWRITE modes, and production patterns.",
+  "private": true,
+  "docs": "docs/provider-reference.md",
+  "skills": {
+    "namecheap-terraform": {
+      "path": "SKILL.md"
+    }
+  }
+}

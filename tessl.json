@@ -1,0 +1,9 @@
+{
+  "name": "my-project",
+  "mode": "vendored",
+  "dependencies": {
+    "community/namecheap-terraform": {
+      "source": "file:/home/chicofwd/workspaces/steio-skills/namecheap-terraform"
+    }
+  }
+}

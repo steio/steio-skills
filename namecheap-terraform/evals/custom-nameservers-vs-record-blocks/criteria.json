@@ -1,0 +1,36 @@
+{
+  "context": "Tests whether the agent correctly identifies and fixes two issues in a Namecheap Terraform configuration: (1) that nameservers and record blocks are mutually exclusive and cannot appear in the same resource, and (2) that nameserver values must be lowercase.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Nameservers only — no record blocks",
+      "max_score": 30,
+      "description": "The final main.tf resource does NOT contain any record {} blocks alongside the nameservers list (they are mutually exclusive)"
+    },
+    {
+      "name": "Record block removed",
+      "max_score": 20,
+      "description": "The incorrect A record block from the draft has been removed from the nameservers resource"
+    },
+    {
+      "name": "Lowercase nameservers",
+      "max_score": 25,
+      "description": "All nameserver values are fully lowercase (e.g., \"nora.ns.cloudflare.com\", NOT \"Nora.NS.Cloudflare.COM\")"
+    },
+    {
+      "name": "Provider source preserved",
+      "max_score": 10,
+      "description": "The required_providers block still specifies source = \"namecheap/namecheap\" with version \">= 2.0.0\""
+    },
+    {
+      "name": "Domain preserved",
+      "max_score": 8,
+      "description": "The resource still targets domain = \"nexuspayments.com\""
+    },
+    {
+      "name": "Both nameservers present",
+      "max_score": 7,
+      "description": "Both Cloudflare nameservers (nora.ns.cloudflare.com and rod.ns.cloudflare.com) are present in the nameservers list"
+    }
+  ]
+}

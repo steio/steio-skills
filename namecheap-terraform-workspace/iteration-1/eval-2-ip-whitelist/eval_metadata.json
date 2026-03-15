@@ -1,0 +1,22 @@
+{
+  "eval_id": 2,
+  "eval_name": "ip-whitelist-troubleshooting",
+  "prompt": "I'm getting an error 'Client IP is not whitelisted' when running terraform apply with the Namecheap provider. My API key is correct. What's wrong and how do I fix it?",
+  "assertions": [
+    {
+      "name": "explains_whitelist_location",
+      "description": "Answer explains where to whitelist IP in Namecheap dashboard",
+      "check": "Mentions Profile → Tools → API Access or Whitelisted IPs"
+    },
+    {
+      "name": "provides_solution_steps",
+      "description": "Answer provides clear steps to fix the issue",
+      "check": "Contains numbered or bulleted steps to resolve"
+    },
+    {
+      "name": "mentions_static_ip",
+      "description": "Answer mentions the need for a static IP",
+      "check": "Mentions static IP or the IP where Terraform runs"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "eval_id": 4,
+  "eval_name": "mode-explanation",
+  "prompt": "What's the difference between MERGE and OVERWRITE mode in the Namecheap Terraform provider? When should I use each one?",
+  "assertions": [
+    {
+      "name": "explains_merge_mode",
+      "description": "Answer explains MERGE mode behavior",
+      "check": "Explains that MERGE preserves existing records and allows multiple configs"
+    },
+    {
+      "name": "explains_overwrite_mode",
+      "description": "Answer explains OVERWRITE mode behavior",
+      "check": "Explains that OVERWRITE owns all records and removes undefined ones"
+    },
+    {
+      "name": "provides_use_cases",
+      "description": "Answer provides guidance on when to use each mode",
+      "check": "Recommends MERGE for gradual adoption and OVERWRITE for full control"
+    },
+    {
+      "name": "mentions_warning",
+      "description": "Answer warns about OVERWRITE removing records",
+      "check": "Warns that OVERWRITE deletes manually created records"
+    }
+  ]
+}

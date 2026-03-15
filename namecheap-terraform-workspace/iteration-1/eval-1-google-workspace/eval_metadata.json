@@ -1,0 +1,32 @@
+{
+  "eval_id": 1,
+  "eval_name": "google-workspace-setup",
+  "prompt": "I need to set up DNS for my domain example.com using Terraform with Namecheap. The domain should point to IP 192.0.2.100, have a www subdomain, and I want to use Google Workspace for email. Can you write the Terraform configuration?",
+  "assertions": [
+    {
+      "name": "has_provider_block",
+      "description": "Configuration includes namecheap provider block with required_providers",
+      "check": "File contains 'required_providers' and 'namecheap' provider"
+    },
+    {
+      "name": "has_apex_a_record",
+      "description": "Configuration has A record for @ (apex) pointing to correct IP",
+      "check": "hostname = '@' and type = 'A' and address = '192.0.2.100'"
+    },
+    {
+      "name": "has_www_cname",
+      "description": "Configuration has CNAME for www subdomain",
+      "check": "hostname = 'www' and type = 'CNAME'"
+    },
+    {
+      "name": "has_google_mx_records",
+      "description": "Configuration includes Google Workspace MX records",
+      "check": "Contains 'aspmx.l.google.com' or similar Google MX"
+    },
+    {
+      "name": "trailing_dots_correct",
+      "description": "CNAME and MX addresses have trailing dots for FQDNs",
+      "check": "CNAME and MX addresses end with '.'"
+    }
+  ]
+}

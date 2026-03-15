@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent correctly configures DNS records for a full domain setup using the Namecheap Terraform provider, covering provider source/version, record syntax rules (lowercase, trailing dots), apex aliasing, email type configuration, and MX record preferences.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Provider source",
+      "max_score": 8,
+      "description": "The required_providers block specifies source as \"namecheap/namecheap\" (not another source string)"
+    },
+    {
+      "name": "Provider version constraint",
+      "max_score": 7,
+      "description": "The required_providers block specifies version \">= 2.0.0\" (or a compatible constraint that includes 2.x)"
+    },
+    {
+      "name": "Lowercase hostnames",
+      "max_score": 10,
+      "description": "All hostname values in record blocks are lowercase (no uppercase letters in any hostname field)"
+    },
+    {
+      "name": "Lowercase addresses",
+      "max_score": 10,
+      "description": "All address values in record blocks are lowercase (no uppercase letters in any address field)"
+    },
+    {
+      "name": "ALIAS record for apex",
+      "max_score": 12,
+      "description": "Uses an ALIAS record type (not A or CNAME) for the apex domain (@) pointing to the CDN hostname"
+    },
+    {
+      "name": "ALIAS trailing dot",
+      "max_score": 8,
+      "description": "The ALIAS record address ends with a trailing dot (e.g., \"cdn-endpoint.provider.net.\")"
+    },
+    {
+      "name": "CNAME trailing dot",
+      "max_score": 8,
+      "description": "The www CNAME record address ends with a trailing dot (e.g., \"taskflow.io.\")"
+    },
+    {
+      "name": "MX trailing dots",
+      "max_score": 10,
+      "description": "All MX record addresses end with a trailing dot (e.g., \"mail1.taskflow.io.\")"
+    },
+    {
+      "name": "email_type set to MX",
+      "max_score": 10,
+      "description": "The resource includes email_type = \"MX\" when defining MX records"
+    },
+    {
+      "name": "mx_pref on MX records",
+      "max_score": 10,
+      "description": "Both MX records include a mx_pref field with their respective priority values"
+    },
+    {
+      "name": "TTL within valid range",
+      "max_score": 7,
+      "description": "Any TTL values specified in records are between 60 and 60000 (inclusive)"
+    }
+  ]
+}

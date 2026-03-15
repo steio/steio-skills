@@ -1,0 +1,46 @@
+{
+  "context": "Tests whether the agent correctly applies MERGE mode when adding new DNS records to a domain with existing manually-configured records, avoiding OVERWRITE which would delete production records, and demonstrates knowledge of the Terraform import workflow for bringing existing state under management.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Uses MERGE mode",
+      "max_score": 20,
+      "description": "The namecheap_domain_records resource explicitly sets mode = \"MERGE\" OR omits the mode argument (which defaults to MERGE)"
+    },
+    {
+      "name": "Does NOT use OVERWRITE",
+      "max_score": 20,
+      "description": "The configuration does NOT set mode = \"OVERWRITE\" anywhere — using OVERWRITE would delete all existing production records"
+    },
+    {
+      "name": "Only staging records defined",
+      "max_score": 15,
+      "description": "The resource only defines the three new staging records (staging A record, api-staging CNAME, staging TXT), not a broad set of all domain records"
+    },
+    {
+      "name": "Correct import command",
+      "max_score": 15,
+      "description": "The import_commands.sh file contains a terraform import command with the format: terraform import namecheap_domain_records.<name> brighthorizons.agency"
+    },
+    {
+      "name": "Lowercase hostnames",
+      "max_score": 10,
+      "description": "All hostname values in record blocks use only lowercase characters"
+    },
+    {
+      "name": "CNAME trailing dot",
+      "max_score": 10,
+      "description": "The CNAME record address ends with a trailing dot"
+    },
+    {
+      "name": "Provider source correct",
+      "max_score": 5,
+      "description": "The required_providers block specifies source = \"namecheap/namecheap\""
+    },
+    {
+      "name": "Provider version constraint",
+      "max_score": 5,
+      "description": "The required_providers block specifies version = \">= 2.0.0\" or compatible constraint"
+    }
+  ]
+}

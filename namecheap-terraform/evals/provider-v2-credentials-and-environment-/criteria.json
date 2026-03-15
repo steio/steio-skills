@@ -1,0 +1,41 @@
+{
+  "context": "Tests whether the agent correctly uses v2.x provider argument names (user_name, api_key, client_ip — not the deprecated v1.x names username, token, ip), prefers environment variables over hardcoded credentials, and correctly configures the sandbox provider option for testing.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "No hardcoded credentials in production.tf",
+      "max_score": 15,
+      "description": "production.tf uses an empty provider block (provider \"namecheap\" {}) or only references env vars via comments — does NOT contain actual username/api_key/client_ip values hardcoded"
+    },
+    {
+      "name": "Env vars in env_setup.sh",
+      "max_score": 15,
+      "description": "env_setup.sh includes export statements for NAMECHEAP_USER_NAME, NAMECHEAP_API_USER, NAMECHEAP_API_KEY, and NAMECHEAP_CLIENT_IP"
+    },
+    {
+      "name": "No 'username' argument",
+      "max_score": 15,
+      "description": "Neither production.tf nor sandbox.tf use the deprecated v1.x argument name 'username' (must use 'user_name' if specified)"
+    },
+    {
+      "name": "No 'token' argument",
+      "max_score": 15,
+      "description": "Neither production.tf nor sandbox.tf use the deprecated v1.x argument name 'token' (must use 'api_key' if specified)"
+    },
+    {
+      "name": "No 'ip' argument",
+      "max_score": 15,
+      "description": "Neither production.tf nor sandbox.tf use the deprecated v1.x argument name 'ip' (must use 'client_ip' if specified)"
+    },
+    {
+      "name": "Sandbox uses use_sandbox = true",
+      "max_score": 15,
+      "description": "sandbox.tf provider block contains use_sandbox = true"
+    },
+    {
+      "name": "Provider version >= 2.0.0",
+      "max_score": 10,
+      "description": "Both configuration files specify version \">= 2.0.0\" in the required_providers block"
+    }
+  ]
+}
