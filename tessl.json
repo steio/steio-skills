@@ -1,9 +1,18 @@
 {
-  "name": "my-project",
+  "name": "steio-skills",
   "mode": "vendored",
   "dependencies": {
-    "community/namecheap-terraform": {
-      "source": "file:/home/chicofwd/workspaces/steio-skills/namecheap-terraform"
+    "steio-skills/namecheap-terraform": {
+      "source": "file:./tiles/devops/namecheap-terraform"
+    },
+    "steio-skills/github-actions": {
+      "source": "file:./tiles/devops/github-actions"
+    },
+    "steio-skills/code-review": {
+      "source": "file:./tiles/backend/code-review"
+    },
+    "steio-skills/security-audit": {
+      "source": "file:./tiles/security/code-audit"
     }
   }
 }

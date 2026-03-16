@@ -1,0 +1,59 @@
+name: Lint Tiles
+
+on:
+  pull_request:
+    paths:
+      - 'tiles/**'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Tessl CLI
+        run: |
+          curl -fsSL https://get.tessl.io | sh
+
+      - name: Lint all tiles
+        run: |
+          echo "## Tile Lint Results" >> $GITHUB_STEP_SUMMARY
+          
+          find tiles -name "tile.json" -type f | while read tile; do
+            DIR=$(dirname "$tile")
+            echo "Linting: $DIR"
+            echo "### $DIR" >> $GITHUB_STEP_SUMMARY
+            tessl tile lint "$DIR" 2>&1 | tee -a $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: Validate skill structure
+        run: |
+          echo "### Skill Structure Validation" >> $GITHUB_STEP_SUMMARY
+          
+          find tiles -name "SKILL.md" -type f | while read skill; do
+            echo "Checking: $skill"
+            
+            # Check YAML frontmatter
+            if ! grep -q "^---" "$skill"; then
+              echo "⚠️ Missing YAML frontmatter in $skill"
+            fi
+            
+            # Check required fields in frontmatter
+            if ! grep -q "name:" "$skill"; then
+              echo "⚠️ Missing 'name' in $skill"
+            fi
+            
+            if ! grep -q "description:" "$skill"; then
+              echo "⚠️ Missing 'description' in $skill"
+            fi
+            
+            # Check file size (under 500 lines recommended)
+            LINES=$(wc -l < "$skill")
+            if [ "$LINES" -gt 500 ]; then
+              echo "⚠️ SKILL.md over 500 lines ($LINES): $skill"
+            fi
+          done | tee -a $GITHUB_STEP_SUMMARY

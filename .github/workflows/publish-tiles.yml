@@ -1,0 +1,63 @@
+name: Publish Tiles
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'tiles/**'
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      tiles: ${{ steps.detect.outputs.tiles }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed tiles
+        id: detect
+        run: |
+          # Get list of changed files
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD -- 'tiles/*')
+          
+          # Extract unique tile paths (tiles/category/tile-name)
+          TILES=$(echo "$CHANGED_FILES" | grep -oP '^tiles/[^/]+/[^/]+' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          
+          echo "tiles=$TILES" >> $GITHUB_OUTPUT
+          echo "Changed tiles: $TILES"
+
+  publish:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.tiles != '[]' && needs.detect-changes.outputs.tiles != ''
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tile: ${{ fromJson(needs.detect-changes.outputs.tiles) }}
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish tile
+        uses: tesslio/publish@main
+        with:
+          token: ${{ secrets.TESSL_API_TOKEN }}
+          path: ${{ matrix.tile }}
+          review: 'true'
+          review-threshold: '50'
+
+  summary:
+    needs: publish
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "## Tile Publishing Complete" >> $GITHUB_STEP_SUMMARY
+          echo "Published tiles from this commit." >> $GITHUB_STEP_SUMMARY

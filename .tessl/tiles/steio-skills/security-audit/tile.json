@@ -1,0 +1,12 @@
+{
+  "name": "steio-skills/security-audit",
+  "version": "1.0.0",
+  "summary": "Security audit and vulnerability detection for codebases. Identifies security issues, secrets, and compliance violations.",
+  "private": true,
+  "docs": "docs/security-checklist.md",
+  "skills": {
+    "vulnerability-scanner": {
+      "path": "skills/vulnerability-scanner/SKILL.md"
+    }
+  }
+}

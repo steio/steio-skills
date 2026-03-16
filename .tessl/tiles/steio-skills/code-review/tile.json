@@ -1,0 +1,12 @@
+{
+  "name": "steio-skills/code-review",
+  "version": "1.0.0",
+  "summary": "Comprehensive code review skill for pull requests, files, and modules. Analyzes code quality, architecture, performance, and best practices.",
+  "private": true,
+  "docs": "docs/review-checklist.md",
+  "skills": {
+    "review-pr": {
+      "path": "skills/review-pr/SKILL.md"
+    }
+  }
+}

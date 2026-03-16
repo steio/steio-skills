@@ -1,0 +1,12 @@
+{
+  "name": "steio-skills/github-actions",
+  "version": "1.0.0",
+  "summary": "CI/CD automation with GitHub Actions. Create, debug, and optimize workflows for build, test, and deploy pipelines.",
+  "private": true,
+  "docs": "docs/ci-best-practices.md",
+  "skills": {
+    "create-ci-pipeline": {
+      "path": "skills/create-ci-pipeline/SKILL.md"
+    }
+  }
+}
