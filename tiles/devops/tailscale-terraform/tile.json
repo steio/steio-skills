@@ -1,0 +1,11 @@
+{
+  "name": "steio-skills/tailscale-terraform",
+  "version": "1.0.0",
+  "summary": "Manage Tailscale VPN infrastructure with Terraform/OpenTofu - ACLs, devices, DNS, auth keys, subnet routers, exit nodes, and cloud-init deployments",
+  "private": true,
+  "skills": {
+    "tailscale-terraform": {
+      "path": "skills/tailscale-terraform/SKILL.md"
+    }
+  }
+}

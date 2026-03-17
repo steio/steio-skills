@@ -5,6 +5,9 @@
     "steio-skills/namecheap-terraform": {
       "source": "file:./tiles/devops/namecheap-terraform"
     },
+    "steio-skills/tailscale-terraform": {
+      "source": "file:./tiles/devops/tailscale-terraform"
+    },
     "steio-skills/github-actions": {
       "source": "file:./tiles/devops/github-actions"
     },
