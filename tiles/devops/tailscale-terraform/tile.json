@@ -5,7 +5,7 @@
   "private": true,
   "skills": {
     "tailscale-terraform": {
-      "path": "SKILL.md"
+      "path": "skills/tailscale-terraform/SKILL.md"
     }
   }
 }
