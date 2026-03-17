@@ -1,0 +1,11 @@
+{
+  "name": "tessl-labs/eval-setup",
+  "version": "0.5.0",
+  "summary": "Generate eval scenarios from repo commits, configure multi-agent runs, execute baseline + with-context evals, and compare results — the full setup pipeline before improvement begins",
+  "private": false,
+  "skills": {
+    "eval-setup": {
+      "path": "skills/eval-setup/SKILL.md"
+    }
+  }
+}
