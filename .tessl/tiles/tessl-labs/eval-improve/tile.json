@@ -1,0 +1,11 @@
+{
+  "name": "tessl-labs/eval-improve",
+  "version": "0.5.0",
+  "summary": "Analyze eval results, diagnose low-scoring criteria, fix tile content, and re-run evals — the full improvement loop automated",
+  "private": false,
+  "skills": {
+    "eval-improve": {
+      "path": "skills/eval-improve/SKILL.md"
+    }
+  }
+}

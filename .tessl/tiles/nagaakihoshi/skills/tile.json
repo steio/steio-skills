@@ -1,0 +1,11 @@
+{
+  "name": "nagaakihoshi/skills",
+  "version": "e5cc02fae119b33d9f9be407331d5587d91e871f",
+  "summary": "Auto-generated tile from GitHub (1 skill)",
+  "private": true,
+  "skills": {
+    "developing-tessl-skills": {
+      "path": "skills/developing-tessl-skills/SKILL.md"
+    }
+  }
+}
