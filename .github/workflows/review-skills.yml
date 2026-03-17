@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'tiles/**/SKILL.md'
+      - '.tessl/tiles/**/SKILL.md'
 
 permissions:
   contents: read
@@ -32,25 +33,26 @@ jobs:
 
       - name: Review skills
         if: steps.changed.outputs.skills != ''
-        id: review
         run: |
-          REVIEWS=""
+          echo "" > reviews.md
           for skill in ${{ steps.changed.outputs.skills }}; do
             if [ -f "$skill" ]; then
-              RESULT=$(tessl skill review "$skill" 2>&1 || true)
-              REVIEWS="${REVIEWS}### Review: $skill\n\n\`\`\`\n${RESULT}\n\`\`\`\n\n"
+              echo "### Review: $skill" >> reviews.md
+              echo "" >> reviews.md
+              echo '```' >> reviews.md
+              tessl skill review "$skill" >> reviews.md 2>&1 || true
+              echo '```' >> reviews.md
+              echo "" >> reviews.md
             fi
           done
-          echo "reviews<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$REVIEWS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Comment on PR
         if: steps.changed.outputs.skills != ''
         uses: actions/github-script@v7
         with:
           script: |
-            const reviews = `${{ steps.review.outputs.reviews }}`;
+            const fs = require('fs');
+            const reviews = fs.readFileSync('reviews.md', 'utf8');
             if (reviews.trim()) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
