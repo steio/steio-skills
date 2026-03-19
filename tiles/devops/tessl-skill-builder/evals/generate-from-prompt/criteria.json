@@ -1,0 +1,11 @@
+{
+  "context": "Skill generates valid Tessl tile from prompt",
+  "type": "weighted_checklist",
+  "checklist": [
+    { "name": "Clarification", "description": "Asks questions if needed", "max_score": 20 },
+    { "name": "SKILL.md Frontmatter", "description": "Valid YAML with name/description", "max_score": 20 },
+    { "name": "tile.json Valid", "description": "Valid JSON, correct name format", "max_score": 20 },
+    { "name": "Eval Scenarios", "description": "At least 2 with task.md + criteria.json", "max_score": 20 },
+    { "name": "AGENTS.md", "description": "Generated with conventions", "max_score": 20 }
+  ]
+}
