@@ -1,0 +1,10 @@
+{
+  "context": "Skill validates existing tile structure",
+  "type": "weighted_checklist",
+  "checklist": [
+    { "name": "SKILL.md Check", "description": "Validates frontmatter", "max_score": 25 },
+    { "name": "tile.json Check", "description": "Validates schema", "max_score": 25 },
+    { "name": "Eval Check", "description": "Validates structure", "max_score": 25 },
+    { "name": "Summary", "description": "Reports results clearly", "max_score": 25 }
+  ]
+}

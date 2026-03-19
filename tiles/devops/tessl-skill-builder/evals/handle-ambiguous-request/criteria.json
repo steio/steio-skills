@@ -1,0 +1,9 @@
+{
+  "context": "Skill asks clarifying questions on ambiguous input",
+  "type": "weighted_checklist",
+  "checklist": [
+    { "name": "No Premature Generation", "description": "Does not create files", "max_score": 40 },
+    { "name": "Asks Question", "description": "Asks about domain/purpose", "max_score": 30 },
+    { "name": "Waits", "description": "Waits for response", "max_score": 30 }
+  ]
+}
