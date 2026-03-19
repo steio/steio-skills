@@ -1,0 +1,10 @@
+{
+  "context": "Skill generates eval scenarios",
+  "type": "weighted_checklist",
+  "checklist": [
+    { "name": "Min 2 Scenarios", "description": "At least 2 created", "max_score": 25 },
+    { "name": "task.md Complete", "description": "Has required sections", "max_score": 25 },
+    { "name": "criteria.json Type", "description": "Type is weighted_checklist", "max_score": 25 },
+    { "name": "Max Score 100", "description": "Sums to 100", "max_score": 25 }
+  ]
+}
