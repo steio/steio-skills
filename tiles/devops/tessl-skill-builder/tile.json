@@ -1,6 +1,6 @@
 {
   "name": "steio-skills/tessl-skill-builder",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "summary": "Generate production-ready Tessl skills from prompts with full spec compliance",
   "private": true,
   "skills": {
