@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent generates eval criteria.json files using the required checklist category taxonomy (INTENT, DESIGN, MUST_NOT, MINIMALITY, REUSE, INTEGRATION, EDGE_CASE), and whether task.md files include the required structural sections (Setup, Task, Expected Behavior).",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "criteria.json has category field",
+      "category": "INTENT",
+      "max_score": 15,
+      "description": "At least one criteria.json under evals/ contains a 'category' field on checklist items"
+    },
+    {
+      "name": "Valid category values used",
+      "category": "MUST_NOT",
+      "max_score": 15,
+      "description": "All 'category' values in criteria.json are from the set: INTENT, DESIGN, MUST_NOT, MINIMALITY, REUSE, INTEGRATION, EDGE_CASE — no custom or invented categories"
+    },
+    {
+      "name": "task.md has Setup section",
+      "category": "INTENT",
+      "max_score": 10,
+      "description": "Each eval task.md contains a '## Setup' section"
+    },
+    {
+      "name": "task.md has Task section",
+      "category": "INTENT",
+      "max_score": 10,
+      "description": "Each eval task.md contains a '## Task' section"
+    },
+    {
+      "name": "task.md has Expected Behavior section",
+      "category": "INTENT",
+      "max_score": 10,
+      "description": "Each eval task.md contains an '## Expected Behavior' section"
+    },
+    {
+      "name": "criteria.json type is weighted_checklist",
+      "category": "INTENT",
+      "max_score": 10,
+      "description": "All criteria.json files have 'type': 'weighted_checklist'"
+    },
+    {
+      "name": "Scores sum to 100",
+      "category": "EDGE_CASE",
+      "max_score": 10,
+      "description": "The sum of all max_score values in each criteria.json equals exactly 100"
+    },
+    {
+      "name": "Multiple category types represented",
+      "category": "DESIGN",
+      "max_score": 10,
+      "description": "The criteria.json checklist items use at least 3 distinct category values (not all INTENT)"
+    },
+    {
+      "name": "Minimum 2 eval scenarios",
+      "category": "MINIMALITY",
+      "max_score": 5,
+      "description": "The evals/ directory contains at least 2 scenario subfolders each with task.md and criteria.json"
+    },
+    {
+      "name": "criteria.json has context field",
+      "category": "DESIGN",
+      "max_score": 5,
+      "description": "Each criteria.json contains a 'context' field with a description of what is being evaluated"
+    }
+  ]
+}

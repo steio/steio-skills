@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent follows Tessl naming conventions (kebab-case for all elements) and generates the correct tile directory structure with tiles/<domain>/<name>/ layout, including proper scenario folder naming.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Tile directory is kebab-case",
+      "category": "INTENT",
+      "max_score": 12,
+      "description": "The tile root directory name (the name of the tile folder created) uses only lowercase letters, digits, and hyphens"
+    },
+    {
+      "name": "Domain directory is kebab-case",
+      "category": "INTENT",
+      "max_score": 12,
+      "description": "The domain directory name (e.g. 'backend', 'devops') uses only lowercase letters and hyphens — no spaces or underscores"
+    },
+    {
+      "name": "Skill name is kebab-case",
+      "category": "INTENT",
+      "max_score": 12,
+      "description": "The SKILL.md frontmatter 'name' field uses kebab-case format (lowercase, hyphens only)"
+    },
+    {
+      "name": "Scenario folder names are kebab-case",
+      "category": "DESIGN",
+      "max_score": 12,
+      "description": "All eval scenario subfolder names under evals/ use kebab-case format (e.g. 'basic-usage', 'error-handling')"
+    },
+    {
+      "name": "No underscores in directory names",
+      "category": "MUST_NOT",
+      "max_score": 10,
+      "description": "None of the tile, domain, skill, or scenario directory/file names use underscores (snake_case) — kebab-case only"
+    },
+    {
+      "name": "Domain correctly chosen",
+      "category": "DESIGN",
+      "max_score": 10,
+      "description": "The domain directory corresponds to a recognized domain category (e.g. backend, devops, security, frontend, qa)"
+    },
+    {
+      "name": "Correct directory hierarchy",
+      "category": "DESIGN",
+      "max_score": 12,
+      "description": "The tile is placed inside a path that follows tiles/<domain>/<tile-name>/ structure (at least two levels of hierarchy: domain then tile name)"
+    },
+    {
+      "name": "tile.json name matches folder name",
+      "category": "INTEGRATION",
+      "max_score": 10,
+      "description": "The slug in the tile.json name field (after 'steio-skills/') matches the tile directory name"
+    },
+    {
+      "name": "No uppercase in names",
+      "category": "MUST_NOT",
+      "max_score": 5,
+      "description": "Tile directory, skill name, scenario folder, and domain directory names do not contain uppercase letters"
+    },
+    {
+      "name": "AGENTS.md generated",
+      "category": "INTENT",
+      "max_score": 5,
+      "description": "The tile includes an AGENTS.md file (not empty) alongside tile.json and SKILL.md"
+    }
+  ]
+}

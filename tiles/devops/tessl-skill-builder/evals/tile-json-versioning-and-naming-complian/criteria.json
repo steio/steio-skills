@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent correctly applies tile.json versioning rules (starting at 0.1.0, not 0.0.1 or 1.0.0), uses the correct name namespace format (steio-skills/<slug>), sets private to true for a pre-production tile, and avoids placeholder text in generated files.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Version starts at 0.1.0",
+      "category": "INTENT",
+      "max_score": 15,
+      "description": "The tile.json version field is exactly '0.1.0' (not '0.0.1', '1.0.0', or any other value)"
+    },
+    {
+      "name": "Name uses steio-skills namespace",
+      "category": "INTENT",
+      "max_score": 15,
+      "description": "The tile.json name field starts with 'steio-skills/' followed by a kebab-case slug (e.g. 'steio-skills/ssl-cert-renewal')"
+    },
+    {
+      "name": "Private flag is true",
+      "category": "INTENT",
+      "max_score": 10,
+      "description": "The tile.json has 'private': true (tile is pre-production and not yet published)"
+    },
+    {
+      "name": "Tile name is kebab-case",
+      "category": "DESIGN",
+      "max_score": 10,
+      "description": "The slug portion of the tile.json name field uses only lowercase letters, digits, and hyphens (kebab-case)"
+    },
+    {
+      "name": "No placeholder text",
+      "category": "MUST_NOT",
+      "max_score": 10,
+      "description": "No generated file contains literal placeholder strings such as '<TBD>', '<TODO>', '<name>', or '<description>'"
+    },
+    {
+      "name": "SKILL.md name is kebab-case",
+      "category": "DESIGN",
+      "max_score": 10,
+      "description": "The SKILL.md YAML frontmatter 'name' field is in kebab-case format"
+    },
+    {
+      "name": "SKILL.md description within 1024 chars",
+      "category": "INTENT",
+      "max_score": 10,
+      "description": "The SKILL.md YAML frontmatter 'description' field is present and does not exceed 1024 characters"
+    },
+    {
+      "name": "skills field present in tile.json",
+      "category": "INTENT",
+      "max_score": 10,
+      "description": "tile.json contains at least one of the required fields: 'docs', 'steering', or 'skills'"
+    },
+    {
+      "name": "Version is valid semver",
+      "category": "EDGE_CASE",
+      "max_score": 5,
+      "description": "The tile.json version field follows semantic versioning format (e.g. 'X.Y.Z')"
+    },
+    {
+      "name": "SKILL.md has name and description",
+      "category": "INTENT",
+      "max_score": 5,
+      "description": "The SKILL.md YAML frontmatter contains both 'name' and 'description' fields (both are required)"
+    }
+  ]
+}
