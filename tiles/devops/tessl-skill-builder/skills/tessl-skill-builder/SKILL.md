@@ -9,14 +9,7 @@ Meta-skill that generates production-ready Tessl skills from prompts. Every gene
 
 ## Trigger Phrases
 
-Activate when the user says:
-- "create a skill"
-- "build a skill"
-- "generate a tessl skill"
-- "scaffold a new skill"
-- "make a tessl tile"
-- "I want a skill for [domain]"
-- Any request implying creating a new agent capability tile
+Activate when the user says: "create a skill", "build a skill", "generate a tessl skill", "scaffold a new skill", "make a tessl tile", "I want a skill for [domain]", or any request implying creating a new agent capability tile.
 
 ## Core Process
 
@@ -145,7 +138,7 @@ description: <1-1024 chars>
 
 ## Companion Skills
 
-After generating a tile, see [COMPANION_SKILLS.md](COMPANION_SKILLS.md) for the full development lifecycle tiles — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, and tile-creator.
+After generating a tile, see [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) for the full development lifecycle tiles — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, and tile-creator.
 
 ---
 
@@ -175,21 +168,13 @@ Every published tile must have a `version` field in `tile.json` following [Semve
 
 ## Validators (run after generation)
 
-### SKILL.md
-- Frontmatter parses as valid YAML
-- `name` and `description` present
-- No placeholder text (`<TBD>`, `<TODO>`)
+Check for any of the following issues and report them before finishing:
 
-### tile.json
-- Valid JSON
-- `name` matches `steio-skills/<slug>`
-- `version` valid semver
-- `skills` keys match SKILL.md frontmatter
-
-### Eval
-- task.md has Setup, Task, Expected Behavior
-- criteria.json has `type: "weighted_checklist"`
-- max_score sums to 100
+| Artifact | Check |
+|----------|-------|
+| SKILL.md | Frontmatter parses as valid YAML; `name` and `description` present; no placeholder text (`<TBD>`, `<TODO>`) |
+| tile.json | Valid JSON; `name` matches `steio-skills/<slug>`; `version` valid semver; `skills` keys match SKILL.md frontmatter |
+| Evals | task.md has Setup, Task, Expected Behavior sections; criteria.json `type` is `weighted_checklist`; max_score sums to 100 |
 
 ---
 
