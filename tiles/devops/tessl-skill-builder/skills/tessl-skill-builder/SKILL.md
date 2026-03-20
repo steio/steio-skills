@@ -301,3 +301,16 @@ Check for any of the following issues and report them before finishing:
 | Review score < 70% | Suggest `tessl skill review --optimize` |
 | Baseline ≈ With-context | Warn skill may add little value |
 | Eval run failed | Suggest `tessl eval retry <id>` |
+
+---
+
+## Official Documentation
+
+For complete Tessl documentation, see [docs/](docs/):
+
+- [Creating Skills](docs/creating-skills.md) — How to create and publish skills
+- [Creating Tiles](docs/creating-tiles.md) — Tiles containing skills, docs, and rules
+- [Configuration Files](docs/configuration.md) — tile.json and tessl.json reference
+- [Evaluate Skill Quality](docs/evaluate-skill-quality.md) — Scenario-based evaluations
+- [Glossary](docs/glossary.md) — Key concepts and terminology
+- [LLMs.txt Index](docs/llms.txt) — Full documentation index for AI consumption
