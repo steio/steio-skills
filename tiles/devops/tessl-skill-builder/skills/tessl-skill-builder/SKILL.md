@@ -9,14 +9,7 @@ Meta-skill that generates production-ready Tessl skills from prompts. Every gene
 
 ## Trigger Phrases
 
-Activate when the user says:
-- "create a skill"
-- "build a skill"
-- "generate a tessl skill"
-- "scaffold a new skill"
-- "make a tessl tile"
-- "I want a skill for [domain]"
-- Any request implying creating a new agent capability tile
+Activate when the user says: "create a skill", "build a skill", "generate a tessl skill", "scaffold a new skill", "make a tessl tile", "I want a skill for [domain]", or any request implying creating a new agent capability tile.
 
 ## Core Process
 
@@ -94,21 +87,31 @@ description: <1-1024 chars>
 ```json
 {
   "name": "steio-skills/<name>",
-  "version": "0.2.0",
-  "summary": "<brief>",
+  "version": "0.1.0",
+  "summary": "<brief description>",
+  "entrypoint": "AGENTS.md",
   "private": true,
   "skills": {
-    "<name>": { "path": "SKILL.md" }
+    "<name>": { "path": "skills/<name>/SKILL.md" }
   }
 }
 ```
 
-### Rules
+### Fields
 
-- `name` matches `steio-skills/<kebab-case>`
-- `version` is valid semver
-- `skills` keys match SKILL.md frontmatter `name`
-- `private: true` until publishing
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | ✓ | Tile name in `workspace/tile-name` format |
+| `version` | ✓ | Semantic version (start at `0.1.0`, never `0.0.1` or `1.0.0`) |
+| `summary` | ✓ | Brief description of the tile |
+| `entrypoint` | | Markdown file shown first in Registry UI (default: `index.md`) |
+| `private` | | Tile visibility (`true` = workspace only, default: `true`) |
+| `docs` | | Path to documentation entrypoint (e.g., `"docs/index.md"`) |
+| `describes` | | Package URL of external package (requires `docs`) |
+| `steering` | | Object mapping rule names to markdown files |
+| `skills` | | Object mapping skill names to SKILL.md paths |
+
+**Validation:** At least one of `docs`, `steering`, or `skills` must be present.
 
 ---
 
@@ -143,9 +146,32 @@ description: <1-1024 chars>
 
 ---
 
+## .tileignore (optional)
+
+Exclude files from tile validation and packing. Place in tile root (same level as `tile.json`).
+
+**Default ignored files** (no .tileignore needed):
+- `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`
+
+**Example `.tileignore`:**
+```gitignore
+# Development notes
+notes.md
+TODO.md
+
+# Draft files
+*.draft.md
+```
+
+**Rules:**
+- Links to ignored files cause validation errors
+- Manifest entrypoints (`docs`, `rules`, `skills`) cannot be ignored
+
+---
+
 ## Companion Skills
 
-After generating a tile, see [COMPANION_SKILLS.md](COMPANION_SKILLS.md) for the full development lifecycle tiles — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, and tile-creator.
+After generating a tile, see [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) for the full development lifecycle tiles — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, and tile-creator.
 
 ---
 
@@ -175,21 +201,13 @@ Every published tile must have a `version` field in `tile.json` following [Semve
 
 ## Validators (run after generation)
 
-### SKILL.md
-- Frontmatter parses as valid YAML
-- `name` and `description` present
-- No placeholder text (`<TBD>`, `<TODO>`)
+Check for any of the following issues and report them before finishing:
 
-### tile.json
-- Valid JSON
-- `name` matches `steio-skills/<slug>`
-- `version` valid semver
-- `skills` keys match SKILL.md frontmatter
-
-### Eval
-- task.md has Setup, Task, Expected Behavior
-- criteria.json has `type: "weighted_checklist"`
-- max_score sums to 100
+| Artifact | Check |
+|----------|-------|
+| SKILL.md | Frontmatter parses as valid YAML; `name` and `description` present; no placeholder text (`<TBD>`, `<TODO>`) |
+| tile.json | Valid JSON; `name` in `workspace/tile-name` format; `version` valid semver (start `0.1.0`); at least one of `docs`/`steering`/`skills` present; if `describes` set then `docs` required |
+| Evals | task.md has Setup, Task, Expected Behavior sections; criteria.json `type` is `weighted_checklist`; max_score sums to 100 |
 
 ---
 
