@@ -10,6 +10,7 @@ This directory contains official Tessl documentation for AI consumption, sourced
 | [creating-tiles.md](creating-tiles.md) | Creating tiles with skills, docs, and rules |
 | [configuration.md](configuration.md) | tile.json and tessl.json reference |
 | [evaluate-skill-quality.md](evaluate-skill-quality.md) | Scenario-based evaluations |
+| [eval-criteria.md](eval-criteria.md) | Checklist categories for criteria.json |
 | [glossary.md](glossary.md) | Key concepts and terminology |
 | [llms.txt](llms.txt) | Full documentation index for AI consumption |
 

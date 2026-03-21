@@ -104,17 +104,7 @@ description: <1-1024 chars>
 }
 ```
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `name` | ✓ | `workspace/tile-name` format |
-| `version` | ✓ | Semver (start `0.1.0`) |
-| `summary` | ✓ | Brief description |
-| `entrypoint` | | Registry UI first file (default: `index.md`) |
-| `private` | | Visibility (default: `true`) |
-| `docs` | | Docs entrypoint path |
-| `describes` | | PURL (requires `docs`) |
-| `steering` | | Rules object |
-| `skills` | | Skills object |
+For complete field reference, see [Configuration Files](docs/configuration.md).
 
 **Validation:** At least one of `docs`, `steering`, or `skills` required.
 
@@ -161,18 +151,7 @@ description: <1-1024 chars>
 - Minimum 2 scenarios per tile
 - max_score sums to 100 per criteria.json
 - Criteria names specific and actionable
-
-### Checklist Categories
-
-| Category | Purpose |
-|----------|---------|
-| `INTENT` | Core feature/behavior the change introduces |
-| `DESIGN` | Architectural or structural choices |
-| `MUST_NOT` | Things the solution should avoid |
-| `MINIMALITY` | Appropriate scope — no overreach |
-| `REUSE` | Leveraging existing patterns |
-| `INTEGRATION` | How solution connects with existing code |
-| `EDGE_CASE` | Boundary conditions handled correctly |
+- Categories must be valid — see [Eval Criteria Categories](docs/eval-criteria.md)
 
 ---
 
@@ -312,5 +291,6 @@ For complete Tessl documentation, see [docs/](docs/):
 - [Creating Tiles](docs/creating-tiles.md) — Tiles containing skills, docs, and rules
 - [Configuration Files](docs/configuration.md) — tile.json and tessl.json reference
 - [Evaluate Skill Quality](docs/evaluate-skill-quality.md) — Scenario-based evaluations
+- [Eval Criteria Categories](docs/eval-criteria.md) — Checklist categories for criteria.json
 - [Glossary](docs/glossary.md) — Key concepts and terminology
 - [LLMs.txt Index](docs/llms.txt) — Full documentation index for AI consumption
