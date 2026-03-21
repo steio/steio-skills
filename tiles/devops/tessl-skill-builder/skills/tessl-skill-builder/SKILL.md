@@ -1,11 +1,25 @@
 ---
 name: tessl-skill-builder
-description: Generate Tessl skills from prompts with full Tessl spec compliance. Creates SKILL.md, tile.json, eval scenarios, AGENTS.md, and docs. Auto-triggers on "create a skill", "build a skill", "generate a tessl skill", or when user wants to scaffold a new agent capability.
+description: Generate production-ready Tessl skills from prompts with full Tessl spec compliance. Creates SKILL.md, tile.json, eval scenarios, AGENTS.md, and docs. Auto-triggers on "create a skill", "build a skill", "generate a tessl skill", or when user wants to scaffold a new agent capability tile. Integrates with skill-creator methodology for interview, draft, and iteration workflow.
 ---
 
 # Tessl Skill Builder
 
-Meta-skill that generates production-ready Tessl skills from prompts. Every generated tile includes SKILL.md, tile.json, eval scenarios, AGENTS.md, and optional docs — all matching Tessl spec.
+Meta-skill that generates production-ready Tessl skills from prompts. Combines **skill-creator** methodology with **Tessl-specific** templates for complete workflow: interview → draft → eval → publish.
+
+## Architecture
+
+```
+skill-creator methodology     tessl-skill-builder specifics
+─────────────────────────     ─────────────────────────────
+Interview & capture intent  →  Tessl namespace rules
+Draft SKILL.md              →  tile.json + eval templates
+Test & iterate              →  tessl eval run
+Description optimization    →  GitHub Actions publish
+```
+
+**Uses `skill-creator` for:** interview methodology, iteration workflow, description optimization.
+**Adds Tessl-specifics:** tile.json schema, eval format (category/context), registry publishing.
 
 ## Trigger Phrases
 
@@ -13,15 +27,17 @@ Activate when the user says: "create a skill", "build a skill", "generate a tess
 
 ## Core Process
 
-### Step 1: Clarify (MANDATORY)
+### Step 1: Capture Intent (MANDATORY)
 
-**ALWAYS ask clarifying questions before generating.** Never generate directly from a prompt.
+**ALWAYS ask clarifying questions before generating.** Use skill-creator interview methodology:
 
-Ask the user:
-- **Purpose**: What problem does this skill solve?
-- **Domain**: devops, backend, security, frontend, qa?
-- **Audience**: Which agent will use it? (Claude Code, Cursor, Copilot, OpenCode)
-- **Tools**: Which tools must the agent use?
+1. **Purpose**: What problem does this skill solve?
+2. **When**: What user phrases/contexts should trigger it?
+3. **Output**: What's the expected output format?
+4. **Domain**: devops, backend, security, frontend, qa?
+5. **Audience**: Which agent will use it? (Claude Code, Cursor, Copilot, OpenCode)
+6. **Tools**: Which tools must the agent use?
+7. **Test cases**: Should we set up evals? (Skills with objectively verifiable outputs benefit from test cases)
 
 If the request is clear, ask at least ONE question to confirm understanding.
 If ambiguous, ask multiple questions until unambiguous.
@@ -51,14 +67,34 @@ tiles/<domain>/<name>/
 3. **evals/** — 2-3 scenarios with task.md + criteria.json + scenario.json
 4. **AGENTS.md** — following existing patterns
 
-### Step 4: Evaluate Locally
+### Step 4: Test & Iterate
 
-Run skill review and scenario-based evals before PR:
-1. `tessl tile lint ./<tile>` — validate structure
-2. `tessl skill review ./<tile>` — check best practices
-3. `tessl eval run ./<tile>` — measure skill effectiveness
+Use skill-creator iteration methodology:
 
-### Step 5: Publish
+1. **Create test prompts** — 2-3 realistic user prompts
+2. **Run baseline** — test without skill
+3. **Run with skill** — test with skill loaded
+4. **Compare results** — measure improvement
+5. **Gather feedback** — user reviews outputs
+6. **Improve skill** — iterate until satisfied
+
+```bash
+tessl tile lint ./<tile>      # Validate structure
+tessl skill review ./<tile>   # Check best practices
+tessl eval run ./<tile>       # Measure effectiveness
+```
+
+### Step 5: Optimize Description
+
+The `description` field in frontmatter is the **primary triggering mechanism**. After creating a skill:
+
+1. Generate 20 trigger eval queries (mix of should-trigger and should-not-trigger)
+2. Run description optimization loop
+3. Apply best description based on test scores
+
+**Tip:** Make descriptions "pushy" to combat under-triggering. Include both what the skill does AND specific contexts for when to use it.
+
+### Step 6: Publish
 
 **GitHub Action auto-publishes on merge to main.** See [Publishing Workflow](#publishing-workflow) for details.
 

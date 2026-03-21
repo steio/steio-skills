@@ -2,6 +2,24 @@
 
 After generating a tile, the full development lifecycle uses these Tessl tiles. Install and invoke as needed.
 
+## Integrated: `skill-creator` (Anthropic)
+
+**Install:** `tessl install github:anthropics/skills --skill skill-creator`
+**Integrated with:** tessl-skill-builder (orchestrates internally)
+
+**What skill-creator adds:**
+- Interview methodology for capturing intent
+- Iteration workflow (draft → test → improve → repeat)
+- Description optimization for better triggering
+- Eval-viewer for qualitative review
+
+**When tessl-skill-builder uses it:**
+- Step 1: Capture Intent — interview methodology
+- Step 4: Test & Iterate — iteration workflow
+- Step 5: Optimize Description — trigger optimization
+
+---
+
 ## For Evals: `tessl-labs/eval-setup`
 
 **Install:** `tessl install tessl-labs/eval-setup`
