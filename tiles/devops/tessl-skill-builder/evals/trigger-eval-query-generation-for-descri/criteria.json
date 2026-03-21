@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent generates a high-quality trigger eval set for description optimization, following the skill's guidance on query concreteness, near-miss negatives, and correct invocation of the run_loop.py optimization script.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Correct query count",
+      "max_score": 5,
+      "description": "trigger-eval.json contains exactly 20 queries (or between 18 and 22 if the agent interpreted the range as approximate)"
+    },
+    {
+      "name": "Correct JSON schema",
+      "max_score": 8,
+      "description": "Each entry in trigger-eval.json has exactly two fields: `query` (string) and `should_trigger` (boolean)"
+    },
+    {
+      "name": "Should-trigger count",
+      "max_score": 7,
+      "description": "Between 8 and 10 entries have `should_trigger: true`"
+    },
+    {
+      "name": "Should-not-trigger count",
+      "max_score": 7,
+      "description": "Between 8 and 10 entries have `should_trigger: false`"
+    },
+    {
+      "name": "Concrete specific queries",
+      "max_score": 10,
+      "description": "At least 10 of the 20 queries include at least one specific concrete detail: a file name/path, column name, company name, personal context, or specific data values — rather than being abstract requests like 'clean this data'"
+    },
+    {
+      "name": "Near-miss negatives present",
+      "max_score": 12,
+      "description": "At least 3 of the should-not-trigger queries are near-misses that share vocabulary with data cleaning (e.g., mention 'duplicates', 'columns', 'CSV', 'missing values', 'normalize') but actually need something different"
+    },
+    {
+      "name": "No obviously irrelevant negatives",
+      "max_score": 8,
+      "description": "None of the should-not-trigger queries are clearly off-topic (e.g., asking about writing code unrelated to data, creative writing, fibonacci sequences) — all negatives are plausibly related to data work"
+    },
+    {
+      "name": "run_loop.py script command",
+      "max_score": 15,
+      "description": "run-optimization.sh invokes `python -m scripts.run_loop` (not a direct .py file path) with the flags `--eval-set`, `--skill-path`, `--model`, `--max-iterations`, and `--verbose`"
+    },
+    {
+      "name": "Model flag explanation",
+      "max_score": 13,
+      "description": "optimization-notes.md explains that the --model flag should use the model ID powering the current session (from the system prompt), so that triggering behavior matches what the user actually experiences"
+    },
+    {
+      "name": "Near-miss rationale",
+      "max_score": 8,
+      "description": "optimization-notes.md explains how near-miss negatives were selected — specifically that they share keywords or domain with the skill but require a different capability"
+    },
+    {
+      "name": "Max iterations value",
+      "max_score": 7,
+      "description": "The --max-iterations flag in run-optimization.sh is set to 5"
+    }
+  ]
+}

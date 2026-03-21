@@ -1,0 +1,66 @@
+{
+  "context": "Tests whether the agent creates a correctly structured skill directory with properly authored SKILL.md frontmatter, appropriate description (pushy to combat undertriggering), imperative-form instructions, and follows the progressive disclosure architecture with correct subdirectory conventions.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "SKILL.md exists",
+      "max_score": 5,
+      "description": "The skill directory contains a SKILL.md file at its root"
+    },
+    {
+      "name": "YAML frontmatter present",
+      "max_score": 8,
+      "description": "SKILL.md begins with a YAML frontmatter block containing at least a `name` and `description` field"
+    },
+    {
+      "name": "Pushy description",
+      "max_score": 12,
+      "description": "The `description` frontmatter field explicitly instructs Claude to use the skill proactively — e.g., contains language like 'use this skill whenever' or 'even if they don't explicitly ask', rather than just describing what the skill does"
+    },
+    {
+      "name": "No when-to-use in body",
+      "max_score": 8,
+      "description": "The SKILL.md body does NOT contain a dedicated 'when to use' or 'triggering' section — all trigger guidance is in the description frontmatter only"
+    },
+    {
+      "name": "Imperative instructions",
+      "max_score": 8,
+      "description": "Instructions in the SKILL.md body are written in the imperative form (e.g., 'Accept a CSV file path', 'Compute per-category totals') rather than descriptive/passive voice"
+    },
+    {
+      "name": "Correct subdirectory names",
+      "max_score": 7,
+      "description": "Any auxiliary files are placed in subdirectories named `scripts/`, `references/`, or `assets/` — no other subdirectory names are used for bundled resources"
+    },
+    {
+      "name": "Output format template",
+      "max_score": 10,
+      "description": "The SKILL.md defines the three-section output structure (executive summary, key findings, recommendations) as a reusable template or example — not just mentioned in passing"
+    },
+    {
+      "name": "SKILL.md length",
+      "max_score": 5,
+      "description": "The SKILL.md file is under 500 lines"
+    },
+    {
+      "name": "Explains why not just MUSTs",
+      "max_score": 10,
+      "description": "The SKILL.md body does NOT consist primarily of ALL-CAPS MUST/ALWAYS/NEVER directives — at least some instructions include reasoning or context for why they matter"
+    },
+    {
+      "name": "Realistic test prompts",
+      "max_score": 12,
+      "description": "An `evals/evals.json` file exists containing 2 or more test prompts written as realistic user-phrased requests (not abstract descriptions), with the correct schema fields: skill_name, evals array with id/prompt/expected_output/files"
+    },
+    {
+      "name": "No assertions in initial evals",
+      "max_score": 8,
+      "description": "The `evals/evals.json` file does NOT contain an `assertions` field in the initial prompts (assertions are added later while runs are in progress, not at first creation)"
+    },
+    {
+      "name": "Script bundled for repeated logic",
+      "max_score": 7,
+      "description": "If the skill involves deterministic/repetitive computation (CSV parsing, totaling), a script is placed in `scripts/` rather than duplicating the logic inline in SKILL.md"
+    }
+  ]
+}

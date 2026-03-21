@@ -1,0 +1,61 @@
+{
+  "context": "Tests whether the agent constructs the evaluation workspace with the correct directory layout, file naming conventions, and artifact schemas. Key items include the workspace location relative to the skill, iteration subdirectories, descriptive eval directory names, timing.json structure, grading.json field names, and benchmark aggregation.",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Workspace sibling location",
+      "max_score": 8,
+      "description": "The workspace directory is created as `markdown-to-pdf-workspace/` (or similar `<skill-name>-workspace/`) as a sibling to the `skills/` or skill directory — NOT inside the skill folder itself"
+    },
+    {
+      "name": "Iteration subdirectory",
+      "max_score": 7,
+      "description": "Results are organized under an `iteration-1/` subdirectory within the workspace"
+    },
+    {
+      "name": "Descriptive eval directory names",
+      "max_score": 10,
+      "description": "Eval subdirectories have descriptive names based on what they test (e.g., `readme-conversion/`, `technical-spec-with-tables/`) rather than generic names like `eval-0` or `eval-1`"
+    },
+    {
+      "name": "With-skill and baseline runs",
+      "max_score": 8,
+      "description": "Each eval directory contains both a `with_skill/` and a `without_skill/` (or `old_skill/`) subdirectory"
+    },
+    {
+      "name": "eval_metadata.json fields",
+      "max_score": 8,
+      "description": "Each eval directory contains an `eval_metadata.json` with the fields: `eval_id`, `eval_name`, `prompt`, and `assertions`"
+    },
+    {
+      "name": "timing.json fields",
+      "max_score": 10,
+      "description": "Each run directory (with_skill/ and without_skill/) contains a `timing.json` with the fields: `total_tokens`, `duration_ms`, and `total_duration_seconds`"
+    },
+    {
+      "name": "grading.json uses correct field names",
+      "max_score": 15,
+      "description": "Each run's grading.json uses `text`, `passed`, and `evidence` as the field names in the expectations array — NOT `name`/`met`/`details` or other variants"
+    },
+    {
+      "name": "benchmark.json exists",
+      "max_score": 8,
+      "description": "A `benchmark.json` file is present at the iteration level (iteration-1/benchmark.json)"
+    },
+    {
+      "name": "With-skill before baseline in benchmark",
+      "max_score": 10,
+      "description": "In benchmark.json (or benchmark.md), each with_skill configuration appears before its corresponding baseline (without_skill) counterpart"
+    },
+    {
+      "name": "No upfront empty directories",
+      "max_score": 8,
+      "description": "The directory structure contains actual files — there are no empty placeholder directories created speculatively for future evals that don't yet exist"
+    },
+    {
+      "name": "outputs subdirectory present",
+      "max_score": 8,
+      "description": "Each run directory contains an `outputs/` subdirectory (even if empty or with stub files) where the skill's actual output files would be saved"
+    }
+  ]
+}

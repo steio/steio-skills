@@ -29,7 +29,9 @@ Activate when the user says: "create a skill", "build a skill", "generate a tess
 
 ### Step 1: Capture Intent (MANDATORY)
 
-**ALWAYS ask clarifying questions before generating.** Use anthropic-skill-creator interview methodology:
+**ALWAYS ask clarifying questions before generating. Use anthropic-skill-creator interview methodology:**
+
+**⚠️ CRITICAL: This step is MANDATORY. Skipping it produces generic, low-quality tiles and is the #1 cause of skill failures.**
 
 1. **Purpose**: What problem does this skill solve?
 2. **When**: What user phrases/contexts should trigger it?
@@ -39,8 +41,10 @@ Activate when the user says: "create a skill", "build a skill", "generate a tess
 6. **Tools**: Which tools must the agent use?
 7. **Test cases**: Should we set up evals? (Skills with objectively verifiable outputs benefit from test cases)
 
-If the request is clear, ask at least ONE question to confirm understanding.
-If ambiguous, ask multiple questions until unambiguous.
+**Clarification Rules:**
+- If the request is clear, ask at least ONE question to confirm understanding
+- If ambiguous, ask multiple questions until unambiguous
+- If user says "just generate it", ask: "What domain should this be in?"
 
 **DO NOT skip this step.** Generation without clarification produces generic, low-quality tiles.
 
@@ -105,13 +109,16 @@ The `description` field in frontmatter is the **primary triggering mechanism**. 
 ```yaml
 ---
 name: <skill-name>
-description: <1-1024 chars>
+description: <1-1024 chars, MUST be "pushy" - include trigger contexts>
 ---
 
 # <Title>
 
 ## When to Use
-<trigger phrases>
+
+**MANDATORY SECTION.** List specific trigger phrases and contexts. This section is critical for agent triggering.
+
+<trigger phrases with examples>
 
 ## Core Process
 <numbered workflow>
@@ -125,7 +132,99 @@ description: <1-1024 chars>
 | Field | Constraints |
 |-------|-------------|
 | `name` | kebab-case |
-| `description` | 1-1024 chars |
+| `description` | 1-1024 chars, **MUST be "pushy"** |
+
+### Pushy Description Examples
+
+The `description` field is the PRIMARY triggering mechanism. Make it "pushy" by including BOTH what the skill does AND specific contexts:
+
+**❌ Weak (under-triggers):**
+```
+description: Generate Terraform modules for AWS infrastructure.
+```
+
+**✅ Pushy (triggers correctly):**
+```
+description: Generate production-ready Terraform modules for AWS infrastructure. Use when user asks to "create a terraform module", "build infrastructure as code", "scaffold AWS resources", or mentions Terraform + AWS together. Triggers on requests for VPC, EC2, S3, RDS, Lambda, or any AWS resource automation.
+```
+
+**Why pushy matters:** Agents tend to under-trigger skills. A verbose description with multiple trigger contexts helps the agent recognize when to activate this skill.
+
+### SKILL.md Body Structure
+
+**MANDATORY sections in order:**
+
+1. **`## When to Use`** — List specific trigger phrases, contexts, and user intents. This is NOT optional.
+2. **`## Core Process`** — Numbered workflow steps.
+3. **`## Reference`** — Examples, patterns, anti-patterns.
+
+**Anti-pattern:** Do NOT put "when to use" information in body prose. Agents need explicit sections.
+
+### Subdirectory Naming
+
+Skills live in `skills/<skill-name>/SKILL.md`. The subdirectory name MUST match the skill name in frontmatter:
+
+```
+tiles/devops/redis-cache-monitor/
+├── skills/
+│   └── redis-cache-monitor/     ← matches skill name
+│       └── SKILL.md
+└── tile.json
+```
+
+**Common mistakes:**
+- `skills/RedisCacheMonitor/` — uppercase
+- `skills/redis_cache_monitor/` — underscores
+- `skills/monitor/` — doesn't match skill name
+
+### Test Prompts (Realistic Examples)
+
+When creating test prompts for iteration, use CONCRETE, SPECIFIC requests:
+
+**❌ Generic (unrealistic):**
+```
+"Create a skill for caching."
+```
+
+**✅ Realistic:**
+```
+"Our backend team is seeing 40% cache miss rates in Redis. 
+Create a skill that helps diagnose cache performance issues 
+and suggests optimization strategies. We use Redis 7.x with 
+Spring Boot applications."
+```
+
+Include: specific technology, current problem, context about the team/stack.
+
+### Script Bundling
+
+For skills with **repeated logic** (validation, transformation, API calls), bundle a script:
+
+```
+tiles/<domain>/<name>/
+├── skills/
+│   └── <name>/
+│       ├── SKILL.md
+│       └── scripts/
+│           └── validate.sh      ← bundled script
+└── tile.json
+```
+
+**When to bundle:**
+- Complex validation logic used in multiple steps
+- API calls with specific auth/format requirements
+- File transformations that are error-prone
+
+**Reference in SKILL.md:**
+```markdown
+## Validation
+
+Run the bundled validation script:
+
+\`\`\`bash
+./scripts/validate.sh <input>
+\`\`\`
+```
 
 ---
 
@@ -217,6 +316,101 @@ For complete field reference, see [Configuration Files](../../docs/configuration
 
 ---
 
+## Evaluation Workspace Structure
+
+For comprehensive eval workflows, use this directory structure alongside the tile:
+
+```
+workspace/
+├── tiles/
+│   └── <domain>/<name>/        ← tile source
+└── eval-workspace/
+    └── <tile-name>/
+        ├── iteration-001/      ← numbered iterations
+        │   ├── with-skill/     ← results with skill loaded
+        │   │   ├── outputs/
+        │   │   │   └── scenario-1/
+        │   │   │       ├── result.json
+        │   │   │       └── traces/
+        │   │   ├── eval_metadata.json
+        │   │   ├── timing.json
+        │   │   └── grading.json
+        │   ├── baseline/       ← results without skill
+        │   │   ├── outputs/
+        │   │   ├── eval_metadata.json
+        │   │   ├── timing.json
+        │   │   └── grading.json
+        │   └── benchmark.json  ← comparison summary
+        └── iteration-002/
+```
+
+### eval_metadata.json
+
+```json
+{
+  "tile": "steio-skills/tessl-skill-builder",
+  "version": "0.1.0",
+  "agent": "claude:claude-sonnet-4-6",
+  "scenarios_count": 3,
+  "timestamp": "2026-03-21T12:00:00Z",
+  "duration_seconds": 180
+}
+```
+
+### timing.json
+
+```json
+{
+  "total_duration_seconds": 180,
+  "avg_per_scenario_seconds": 60,
+  "scenarios": {
+    "scenario-1": { "duration_seconds": 45, "turns": 12 },
+    "scenario-2": { "duration_seconds": 75, "turns": 18 }
+  }
+}
+```
+
+### grading.json
+
+```json
+{
+  "scenario-1": {
+    "total_score": 85,
+    "max_score": 100,
+    "checks": {
+      "valid-output": { "score": 20, "max_score": 20 },
+      "correct-format": { "score": 15, "max_score": 20 }
+    }
+  }
+}
+```
+
+### benchmark.json
+
+```json
+{
+  "tile": "steio-skills/tessl-skill-builder",
+  "iteration": 1,
+  "comparison": {
+    "with_skill_avg": 85,
+    "baseline_avg": 60,
+    "delta": 25
+  },
+  "scenarios": [
+    {
+      "name": "scenario-1",
+      "with_skill": 90,
+      "baseline": 70,
+      "delta": 20
+    }
+  ]
+}
+```
+
+**Important:** Always run `with-skill` BEFORE `baseline` to ensure fair comparison.
+
+---
+
 ## Evaluation Lifecycle
 
 After generating a tile, guide the user through evaluation:
@@ -255,7 +449,88 @@ tessl eval run <tile> --agent=claude:claude-opus-4-6
 
 Tiles with `describes` field are auto-evaluated on publish for API correctness.
 
-### Phase 5: Publish to Registry
+### Phase 5: Description Optimization
+
+**CRITICAL for triggering accuracy.** After creating a skill, optimize the description:
+
+#### Step 1: Generate Trigger Queries
+
+Create `evals/description-queries.json`:
+
+```json
+{
+  "should_trigger": [
+    "create a terraform module for S3",
+    "I need to build infrastructure as code",
+    "scaffold AWS resources with Terraform"
+  ],
+  "should_not_trigger": [
+    "create a Python script for data processing",
+    "help me write a React component",
+    "generate documentation for my API"
+  ]
+}
+```
+
+**Requirements:**
+- Minimum 10 should-trigger queries
+- Minimum 10 should-not-trigger queries (near-misses, not obviously irrelevant)
+- Queries must be concrete and specific
+
+#### Step 2: Run Optimization Loop
+
+Use `run_loop.py` to test description variants:
+
+```python
+#!/usr/bin/env python3
+"""Description optimization loop for skill triggering."""
+
+import json
+import subprocess
+import sys
+
+def run_eval(description: str, queries: dict) -> float:
+    """Test a description variant against queries."""
+    # Update SKILL.md with new description
+    # Run trigger eval
+    # Return score
+    pass
+
+def main():
+    with open("evals/description-queries.json") as f:
+        queries = json.load(f)
+    
+    descriptions = [
+        "Generate Terraform modules for AWS.",
+        "Generate production-ready Terraform modules for AWS infrastructure. Use when...",
+    ]
+    
+    for desc in descriptions:
+        score = run_eval(desc, queries)
+        print(f"Score: {score:.2f} | {desc[:50]}...")
+
+if __name__ == "__main__":
+    main()
+```
+
+**Run with:**
+```bash
+python run_loop.py --max-iterations 10 --model claude:claude-sonnet-4-6
+```
+
+**Parameters:**
+- `--max-iterations`: Number of description variants to test (default: 10)
+- `--model`: Agent to use for eval (e.g., `claude:claude-sonnet-4-6`)
+- `--threshold`: Minimum acceptable trigger score (default: 90)
+
+#### Step 3: Apply Best Description
+
+Select the description with highest trigger accuracy. Prioritize:
+1. Correct should-trigger rate (> 90%)
+2. Low false positive rate (should-not-trigger < 10%)
+3. Conciseness (under 1024 chars)
+
+### Phase 6: Publish to Registry
 
 **CRITICAL: Evals only appear in dashboard after publish.**
 
