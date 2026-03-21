@@ -279,30 +279,36 @@ After generating a tile, see [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) fo
 
 ---
 
-## Mandatory Versioning
+## Validation Checklist
 
-Every published tile must have a `version` field in `tile.json` following [Semver](https://semver.org/).
+**ALWAYS validate before reporting completion.** Run `tessl tile lint <path>` to validate automatically.
 
-### Tessl Rules
+### SKILL.md
 
-- **Start at `0.1.0`** — never `0.0.1` or `1.0.0`
-- **Publish at `1.0.0`** when ready for production (stable behavior, passing evals)
-- **Keep `private: true`** until `1.0.0` or explicit QA
-- **Increment before PR** — bump on any functional change
+- Frontmatter parses as valid YAML
+- `name` is kebab-case
+- `description` ≤ 1024 chars
+- No placeholder text (`<TBD>`, `<TODO>`)
 
----
+### tile.json
 
-## Validators (run after generation)
+- Valid JSON
+- `name` starts with `steio-skills/`
+- `version` is `0.1.0` (never `0.0.1` or `1.0.0`)
+- `private: true` until production-ready
+- At least one of `docs`, `steering`, or `skills` present
 
-**ALWAYS validate before reporting completion.** Check for issues:
+### Evals
 
-| Artifact | Check |
-|----------|-------|
-| SKILL.md | Frontmatter parses as valid YAML; `name` (kebab-case) and `description` (≤1024 chars) present; no placeholder text (`<TBD>`, `<TODO>`) |
-| tile.json | Valid JSON; `name` starts with `steio-skills/`; `version` is `0.1.0`; `private: true`; at least one of `docs`/`steering`/`skills` present |
-| Evals | task.md has Setup, Task, Expected Behavior, Validation sections; criteria.json has `context`, `type: "weighted_checklist"`, checklist items with `category`; max_score sums to 100; multiple category types used |
+- task.md has: Setup, Task, Expected Behavior, Validation sections
+- criteria.json has: `context`, `type: "weighted_checklist"`, checklist items with `category`
+- max_score sums to 100 per criteria.json
+- Multiple category types used (not all INTENT)
 
-Run `tessl tile lint <path>` to validate automatically.
+### Publishing Rules
+
+- Increment version before PR
+- Publish at `1.0.0` when stable (passing evals, explicit QA)
 
 ---
 
@@ -320,14 +326,7 @@ Run `tessl tile lint <path>` to validate automatically.
 
 ---
 
-## Official Documentation
+## Reference
 
-For complete Tessl documentation, see [docs/](../../docs/):
-
-- [Creating Skills](../../docs/creating-skills.md) — How to create and publish skills
-- [Creating Tiles](../../docs/creating-tiles.md) — Tiles containing skills, docs, and rules
-- [Configuration Files](../../docs/configuration.md) — tile.json and tessl.json reference
-- [Evaluate Skill Quality](../../docs/evaluate-skill-quality.md) — Scenario-based evaluations
-- [Eval Criteria Categories](../../docs/eval-criteria.md) — Checklist categories for criteria.json
-- [Glossary](../../docs/glossary.md) — Key concepts and terminology
-- [LLMs.txt Index](../../docs/llms.txt) — Full documentation index for AI consumption
+- [Official Tessl Documentation](../../docs/) — creating-skills, creating-tiles, configuration, evaluate-skill-quality, eval-criteria, glossary, llms.txt
+- [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, tile-creator
