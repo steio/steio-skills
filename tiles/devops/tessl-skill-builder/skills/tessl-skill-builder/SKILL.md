@@ -285,7 +285,7 @@ Tiles with `describes` field are auto-evaluated on publish for API correctness.
 
 ## Companion Skills
 
-After generating a tile, see [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) for the full development lifecycle tiles — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, and tile-creator.
+After generating a tile, see [Companion Skills](../../docs/companion-skills.md) for the full development lifecycle tiles — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, and tile-creator.
 
 ---
 
@@ -381,4 +381,4 @@ tessl tile publish ./<tile> --bump patch
 ## Reference
 
 - [Official Tessl Documentation](../../docs/) — creating-skills, creating-tiles, configuration, evaluate-skill-quality, eval-criteria, glossary, llms.txt
-- [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, tile-creator
+- [Companion Skills](../../docs/companion-skills.md) — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, tile-creator
