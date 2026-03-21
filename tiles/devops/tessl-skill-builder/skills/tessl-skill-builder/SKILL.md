@@ -1,16 +1,16 @@
 ---
 name: tessl-skill-builder
-description: Generate production-ready Tessl skills from prompts with full Tessl spec compliance. Creates SKILL.md, tile.json, eval scenarios, AGENTS.md, and docs. Auto-triggers on "create a skill", "build a skill", "generate a tessl skill", or when user wants to scaffold a new agent capability tile. Integrates with skill-creator methodology for interview, draft, and iteration workflow.
+description: Generate production-ready Tessl skills from prompts with full Tessl spec compliance. Creates SKILL.md, tile.json, eval scenarios, AGENTS.md, and docs. Auto-triggers on "create a skill", "build a skill", "generate a tessl skill", or when user wants to scaffold a new agent capability tile. Integrates with anthropic-skill-creator methodology for interview, draft, and iteration workflow.
 ---
 
 # Tessl Skill Builder
 
-Meta-skill that generates production-ready Tessl skills from prompts. Combines **skill-creator** methodology with **Tessl-specific** templates for complete workflow: interview → draft → eval → publish.
+Meta-skill that generates production-ready Tessl skills from prompts. Combines **anthropic-skill-creator** methodology with **Tessl-specific** templates for complete workflow: interview → draft → eval → publish.
 
 ## Architecture
 
 ```
-skill-creator methodology     tessl-skill-builder specifics
+anthropic-skill-creator        tessl-skill-builder specifics
 ─────────────────────────     ─────────────────────────────
 Interview & capture intent  →  Tessl namespace rules
 Draft SKILL.md              →  tile.json + eval templates
@@ -18,7 +18,7 @@ Test & iterate              →  tessl eval run
 Description optimization    →  GitHub Actions publish
 ```
 
-**Uses `skill-creator` for:** interview methodology, iteration workflow, description optimization.
+**Uses `anthropic-skill-creator` for:** interview methodology, iteration workflow, description optimization.
 **Adds Tessl-specifics:** tile.json schema, eval format (category/context), registry publishing.
 
 ## Trigger Phrases
@@ -29,7 +29,7 @@ Activate when the user says: "create a skill", "build a skill", "generate a tess
 
 ### Step 1: Capture Intent (MANDATORY)
 
-**ALWAYS ask clarifying questions before generating.** Use skill-creator interview methodology:
+**ALWAYS ask clarifying questions before generating.** Use anthropic-skill-creator interview methodology:
 
 1. **Purpose**: What problem does this skill solve?
 2. **When**: What user phrases/contexts should trigger it?
@@ -69,7 +69,7 @@ tiles/<domain>/<name>/
 
 ### Step 4: Test & Iterate
 
-Use skill-creator iteration methodology:
+Use anthropic-skill-creator iteration methodology:
 
 1. **Create test prompts** — 2-3 realistic user prompts
 2. **Run baseline** — test without skill

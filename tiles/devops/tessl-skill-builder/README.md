@@ -8,7 +8,7 @@
 
 ## Overview
 
-Meta-skill that generates production-ready Tessl skills from prompts. Combines **skill-creator** methodology with **Tessl-specific** templates for complete workflow: interview → draft → eval → publish.
+Meta-skill that generates production-ready Tessl skills from prompts. Combines **anthropic-skill-creator** methodology with **Tessl-specific** templates for complete workflow: interview → draft → eval → publish.
 
 ## Install
 
@@ -31,7 +31,7 @@ Agent: [uses tessl-skill-builder]
 ## Workflow
 
 ```
-skill-creator methodology     tessl-skill-builder specifics
+anthropic-skill-creator        tessl-skill-builder specifics
 ─────────────────────────     ─────────────────────────────
 Interview & capture intent  →  Tessl namespace rules
 Draft SKILL.md              →  tile.json + eval templates
@@ -66,9 +66,9 @@ tiles/<domain>/<name>/
 | Eval (baseline) | 81% |
 | Impact | +18% delta |
 
-## Integration with skill-creator
+## Integration with anthropic-skill-creator
 
-Uses [skill-creator](https://tessl.io/registry/skills/github/anthropics/skills/skill-creator) (Anthropic) for:
+Uses [anthropic-skill-creator](https://tessl.io/registry/steio-skills/anthropic-skill-creator) (local fork) for:
 - Interview methodology
 - Iteration workflow
 - Description optimization

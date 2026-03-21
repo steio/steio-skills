@@ -2,12 +2,13 @@
 
 After generating a tile, the full development lifecycle uses these Tessl tiles. Install and invoke as needed.
 
-## Integrated: `skill-creator` (Anthropic)
+## Integrated: `anthropic-skill-creator` (Local Fork)
 
-**Install:** `tessl install github:anthropics/skills --skill skill-creator`
+**Install:** `tessl install steio-skills/anthropic-skill-creator`
+**Upstream:** https://github.com/anthropics/skills (weekly auto-sync)
 **Integrated with:** tessl-skill-builder (orchestrates internally)
 
-**What skill-creator adds:**
+**What anthropic-skill-creator adds:**
 - Interview methodology for capturing intent
 - Iteration workflow (draft → test → improve → repeat)
 - Description optimization for better triggering

@@ -7,7 +7,7 @@ Generate production-ready Tessl skills from prompts.
 | Task | Location |
 |------|----------|
 | Primary skill | skills/tessl-skill-builder/SKILL.md |
-| Companion skills | COMPANION_SKILLS.md |
+| Companion skills | docs/companion-skills.md |
 | Eval scenarios | evals/*/ |
 
 ## TILE STRUCTURE
@@ -16,11 +16,10 @@ Generate production-ready Tessl skills from prompts.
 tessl-skill-builder/
 ├── tile.json           # Tile manifest (name, version, skills)
 ├── AGENTS.md           # This file - project context
-├── COMPANION_SKILLS.md # Related skills for full lifecycle
 ├── .tileignore         # Excluded files
 ├── skills/
 │   └── tessl-skill-builder/SKILL.md
-├── docs/               # (optional) Documentation
+├── docs/               # Documentation
 ├── evals/              # Eval scenarios
 │   └── <scenario>/
 │       ├── task.md
