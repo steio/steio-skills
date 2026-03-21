@@ -1,0 +1,5 @@
+# Anthropic skill-creator extras - not part of tile manifest
+skills/skill-creator/agents/
+skills/skill-creator/references/
+skills/skill-creator/LICENSE.txt
+skills/skill-creator/eval-viewer/

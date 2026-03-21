@@ -37,6 +37,12 @@
           "developing-tessl-skills"
         ]
       }
+    },
+    "steio-skills/anthropic-skill-creator": {
+      "source": "file:./tiles/vendor/anthropic-skill-creator"
+    },
+    "steio-skills/tessl-skill-builder": {
+      "version": "0.3.2"
     }
   }
 }
