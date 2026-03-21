@@ -1,0 +1,87 @@
+name: Sync Anthropic Skill-Creator
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Weekly on Monday at 9:00 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no changes)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for updates
+        id: check
+        run: |
+          CURRENT=$(cat tiles/vendor/anthropic-skill-creator/tile.json | jq -r '._upstream.commit')
+          echo "current_commit=$CURRENT" >> $GITHUB_OUTPUT
+          
+          LATEST=$(git ls-remote https://github.com/anthropics/skills.git HEAD | cut -f1)
+          echo "latest_commit=$LATEST" >> $GITHUB_OUTPUT
+          
+          if [ "$CURRENT" = "$LATEST" ]; then
+            echo "up_to_date=true" >> $GITHUB_OUTPUT
+            echo "✅ Already up to date"
+          else
+            echo "up_to_date=false" >> $GITHUB_OUTPUT
+            echo "🔄 Updates available: $CURRENT → $LATEST"
+          fi
+
+      - name: Fetch upstream
+        if: steps.check.outputs.up_to_date != 'true' && inputs.dry_run != 'true'
+        run: |
+          TEMP=$(mktemp -d)
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/anthropics/skills.git "$TEMP/upstream"
+          cd "$TEMP/upstream"
+          git sparse-checkout set skills/skill-creator
+          
+          rm -rf $GITHUB_WORKSPACE/tiles/vendor/anthropic-skill-creator/skills/skill-creator/*
+          cp -r skills/skill-creator/* $GITHUB_WORKSPACE/tiles/vendor/anthropic-skill-creator/skills/skill-creator/
+          
+          COMMIT=$(git rev-parse HEAD)
+          DATE=$(date +%Y-%m-%d)
+          
+          cd $GITHUB_WORKSPACE
+          jq --arg commit "$COMMIT" --arg date "$DATE" \
+            '._upstream.commit = $commit | ._upstream.synced_at = $date' \
+            tiles/vendor/anthropic-skill-creator/tile.json > tmp.json && mv tmp.json tiles/vendor/anthropic-skill-creator/tile.json
+          
+          sed -i "s/Commit: .*/Commit: $COMMIT/" tiles/vendor/anthropic-skill-creator/AGENTS.md
+          sed -i "s/Synced: .*/Synced: $DATE/" tiles/vendor/anthropic-skill-creator/AGENTS.md
+          
+          rm -rf "$TEMP"
+
+      - name: Create Pull Request
+        if: steps.check.outputs.up_to_date != 'true' && inputs.dry_run != 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: sync/anthropic-skill-creator
+          title: "chore: sync anthropic-skill-creator from upstream"
+          body: |
+            ## Upstream Sync
+            
+            | Field | Value |
+            |-------|-------|
+            | Previous | ${{ steps.check.outputs.current_commit }} |
+            | New | ${{ steps.check.outputs.latest_commit }} |
+            
+            ### Files Changed
+            See diff for details.
+            
+            ---
+            
+            **Review before merging.** Check for breaking changes or API modifications.
+          labels: sync, dependencies
+          draft: false
