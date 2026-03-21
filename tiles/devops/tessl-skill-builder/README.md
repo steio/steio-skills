@@ -3,12 +3,12 @@
 > Generate production-ready Tessl skills from prompts with full spec compliance.
 
 [![Tessl Registry](https://img.shields.io/badge/Tessl-Registry-blue)](https://tessl.io/registry/steio-skills/tessl-skill-builder)
-[![Version](https://img.shields.io/badge/version-0.3.0-green)](https://tessl.io/registry/steio-skills/tessl-skill-builder)
+[![Version](https://img.shields.io/badge/version-0.3.4-green)](https://tessl.io/registry/steio-skills/tessl-skill-builder)
 [![Quality](https://img.shields.io/badge/quality-93%25-brightgreen)](https://tessl.io/registry/steio-skills/tessl-skill-builder/quality)
 
 ## Overview
 
-Meta-skill that generates production-ready Tessl skills from prompts. Combines **anthropic-skill-creator** methodology with **Tessl-specific** templates for complete workflow: interview → draft → eval → publish.
+Meta-skill that generates production-ready Tessl skills from prompts. Combines **anthropic-skill-creator** (local fork) methodology with **Tessl-specific** templates for complete workflow: interview → draft → eval → publish.
 
 ## Install
 
@@ -36,7 +36,7 @@ anthropic-skill-creator        tessl-skill-builder specifics
 Interview & capture intent  →  Tessl namespace rules
 Draft SKILL.md              →  tile.json + eval templates
 Test & iterate              →  tessl eval run
-Description optimization    →  GitHub Actions publish
+Description optimization    →  GitHub Actions auto-publish
 ```
 
 ## Generated Output
@@ -44,15 +44,29 @@ Description optimization    →  GitHub Actions publish
 ```
 tiles/<domain>/<name>/
 ├── tile.json           # Manifest with steio-skills/ namespace
+├── AGENTS.md           # Project context
 ├── skills/
 │   └── <name>/SKILL.md # Skill with valid frontmatter
 ├── docs/               # Optional documentation
-├── evals/              # 2-3 eval scenarios
-│   └── <scenario>/
-│       ├── task.md
-│       ├── criteria.json
-│       └── scenario.json
-└── AGENTS.md           # Project context
+└── evals/              # 2-3 eval scenarios
+    └── <scenario>/
+        ├── task.md
+        └── criteria.json
+```
+
+## Complete Workflow
+
+```
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   INTERVIEW  │ → │   GENERATE   │ → │   VALIDATE   │
+│   (ask Qs)   │    │  (draft tile)│    │ (lint/review)│
+└──────────────┘    └──────────────┘    └──────────────┘
+                                               │
+                                               ▼
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│    PUBLISH   │ ← │     PR       │ ← │  LOCAL EVAL  │
+│   (auto-CI)  │    │   (merge)    │    │ (baseline++) │
+└──────────────┘    └──────────────┘    └──────────────┘
 ```
 
 ## Quality Metrics
@@ -62,22 +76,28 @@ tiles/<domain>/<name>/
 | Skill Review | 93% |
 | Description | 100% |
 | Content | 85% |
+| Eval Scenarios | 7 |
 | Eval (with context) | 99% |
 | Eval (baseline) | 81% |
-| Impact | +18% delta |
+| Impact | +18pp delta |
 
-## Integration with anthropic-skill-creator
+## Dependencies
 
-Uses [anthropic-skill-creator](https://tessl.io/registry/steio-skills/anthropic-skill-creator) (local fork) for:
-- Interview methodology
-- Iteration workflow
-- Description optimization
+| Dependency | Source | Purpose |
+|------------|--------|---------|
+| `steio-skills/anthropic-skill-creator` | Local fork | Interview methodology, iteration workflow |
+
+The `anthropic-skill-creator` is a local fork of [Anthropic's skill-creator](https://github.com/anthropics/skills) with weekly auto-sync from upstream.
 
 ## Documentation
 
-- [SKILL.md](skills/tessl-skill-builder/SKILL.md) — Main skill file
-- [docs/](docs/) — Official Tessl documentation
-- [Companion Skills](docs/companion-skills.md) — Related skills for full lifecycle
+| Document | Description |
+|----------|-------------|
+| [SKILL.md](skills/tessl-skill-builder/SKILL.md) | Main skill file |
+| [docs/](docs/) | Tessl documentation |
+| [docs/companion-skills.md](docs/companion-skills.md) | Related skills |
+| [docs/configuration.md](docs/configuration.md) | tile.json reference |
+| [docs/eval-criteria.md](docs/eval-criteria.md) | Eval categories |
 
 ## Companion Skills
 
@@ -88,6 +108,13 @@ Uses [anthropic-skill-creator](https://tessl.io/registry/steio-skills/anthropic-
 | `tessl-labs/compare-skill-model-performance` | Multi-model comparison |
 | `nagaakihoshi/developing-tessl-skills` | Full lifecycle workflow |
 | `tessl-labs/tile-creator` | Alternative tile creation |
+
+## Security
+
+This skill has been reviewed for security:
+- ✅ No external repository dependencies (uses local fork)
+- ✅ No arbitrary URL fetching
+- ✅ Eval scenarios run in isolated environment
 
 ## License
 
