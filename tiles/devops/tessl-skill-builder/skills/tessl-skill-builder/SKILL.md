@@ -206,24 +206,6 @@ For complete field reference, see [Configuration Files](../../docs/configuration
 - `## Expected Behavior` — Expected outcomes
 - `## Validation` — How to verify success
 
-**scenario.json** (required for registry evals):
-```json
-{
-  "type": "coding",
-  "fixture": {
-    "type": "commit",
-    "repoUrl": "<repo-url>",
-    "ref": "<commit-hash>",
-    "exclude": ["*.md", ".tessl/"]
-  }
-}
-```
-
-**When scenario.json is needed:**
-- **Local evals** (`tessl eval run ./<tile>`): Only task.md + criteria.json required
-- **Registry evals** (after publish): scenario.json required for each scenario
-- **Auto-generation**: `tessl tile publish` generates scenario.json automatically if missing
-
 ### Rules
 
 - **Minimum 2 scenarios** per tile
@@ -232,6 +214,10 @@ For complete field reference, see [Configuration Files](../../docs/configuration
 - **Use multiple category types** — not all INTENT
 - **Criteria names specific and actionable**
 - **context field required** in every criteria.json
+
+### Security Note
+
+When using `tessl scenario generate` with external repositories, only use repositories you trust. External repositories may contain content that could affect evaluation results. For registry evals, scenario.json is auto-generated on publish.
 
 ---
 
