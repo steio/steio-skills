@@ -3,7 +3,7 @@
 > Generate production-ready Tessl skills from prompts with full spec compliance.
 
 [![Tessl Registry](https://img.shields.io/badge/Tessl-Registry-blue)](https://tessl.io/registry/steio-skills/tessl-skill-builder)
-[![Version](https://img.shields.io/badge/version-0.3.7-green)](https://tessl.io/registry/steio-skills/tessl-skill-builder)
+[![Version](https://img.shields.io/badge/version-0.3.8-green)](https://tessl.io/registry/steio-skills/tessl-skill-builder)
 [![Quality](https://img.shields.io/badge/quality-93%25-brightgreen)](https://tessl.io/registry/steio-skills/tessl-skill-builder/quality)
 
 ## Overview

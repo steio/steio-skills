@@ -5,131 +5,70 @@ description: Generate production-ready Tessl skills from prompts with full Tessl
 
 # Tessl Skill Builder
 
-Meta-skill that generates production-ready Tessl skills from prompts. Combines **anthropic-skill-creator** methodology with **Tessl-specific** templates for complete workflow: interview → draft → eval → publish.
+Generate production-ready Tessl skills from prompts. Combines **anthropic-skill-creator** methodology with **Tessl-specific** templates for: interview → draft → eval → publish.
 
-## Architecture
+---
 
-```
-anthropic-skill-creator        tessl-skill-builder specifics
-─────────────────────────     ─────────────────────────────
-Interview & capture intent  →  Tessl namespace rules
-Draft SKILL.md              →  tile.json + eval templates
-Test & iterate              →  tessl eval run
-Description optimization    →  GitHub Actions publish
-```
+## ⚠️ CRITICAL: ALWAYS CLARIFY FIRST
 
-**Uses `anthropic-skill-creator` for:** interview methodology, iteration workflow, description optimization.
-**Adds Tessl-specifics:** tile.json schema, eval format (category/context), registry publishing.
+**BEFORE generating ANY tile, ask clarifying questions. Skipping this is the #1 cause of skill failures.**
 
-## Trigger Phrases
+| Request Type | Action |
+|--------------|--------|
+| Clear, specific request | Ask 1 question to confirm |
+| Ambiguous or vague | Ask 3+ questions until clear |
+| "Just generate it" | Ask: "What domain should this be in?" |
 
-Activate when the user says: "create a skill", "build a skill", "generate a tessl skill", "scaffold a new skill", "make a tessl tile", "I want a skill for [domain]", or any request implying creating a new agent capability tile.
+**Questions:** Purpose? Trigger phrases? Output format? Domain? Audience? Tools?
 
-## Core Process
+---
 
-### Step 1: Capture Intent (MANDATORY)
-
-**ALWAYS ask clarifying questions before generating.** Use anthropic-skill-creator interview methodology:
-
-1. **Purpose**: What problem does this skill solve?
-2. **When**: What user phrases/contexts should trigger it?
-3. **Output**: What's the expected output format?
-4. **Domain**: devops, backend, security, frontend, qa?
-5. **Audience**: Which agent will use it? (Claude Code, Cursor, Copilot, OpenCode)
-6. **Tools**: Which tools must the agent use?
-7. **Test cases**: Should we set up evals? (Skills with objectively verifiable outputs benefit from test cases)
-
-If the request is clear, ask at least ONE question to confirm understanding.
-If ambiguous, ask multiple questions until unambiguous.
-
-**DO NOT skip this step.** Generation without clarification produces generic, low-quality tiles.
-
-### Step 2: Generate Tile Structure
+## Tile Structure
 
 ```
 tiles/<domain>/<name>/
-├── tile.json
-├── SKILL.md
-├── docs/                  (optional)
-│   └── *.md
-├── evals/
-│   └── <scenario>/
-│       ├── task.md
-│       ├── criteria.json
-│       └── scenario.json  (for codebase evals)
-└── AGENTS.md
+├── tile.json           # REQUIRED - Tile manifest
+├── AGENTS.md           # REQUIRED - Project context
+├── skills/
+│   └── <name>/
+│       └── SKILL.md    # REQUIRED - Skill instructions
+├── docs/               # OPTIONAL
+└── evals/              # REQUIRED - 2-3 scenarios
+    └── <scenario>/
+        ├── task.md
+        └── criteria.json
 ```
 
-### Step 3: Generate Files
-
-1. **SKILL.md** — with valid YAML frontmatter
-2. **tile.json** — with correct schema
-3. **evals/** — 2-3 scenarios with task.md + criteria.json + scenario.json
-4. **AGENTS.md** — following existing patterns
-
-### Step 4: Test & Iterate
-
-Use anthropic-skill-creator iteration methodology:
-
-1. **Create test prompts** — 2-3 realistic user prompts
-2. **Run baseline** — test without skill
-3. **Run with skill** — test with skill loaded
-4. **Compare results** — measure improvement
-5. **Gather feedback** — user reviews outputs
-6. **Improve skill** — iterate until satisfied
-
-```bash
-tessl tile lint ./<tile>      # Validate structure
-tessl skill review ./<tile>   # Check best practices
-tessl eval run ./<tile>       # Measure effectiveness
-```
-
-### Step 5: Optimize Description
-
-The `description` field in frontmatter is the **primary triggering mechanism**. After creating a skill:
-
-1. Generate 20 trigger eval queries (mix of should-trigger and should-not-trigger)
-2. Run description optimization loop
-3. Apply best description based on test scores
-
-**Tip:** Make descriptions "pushy" to combat under-triggering. Include both what the skill does AND specific contexts for when to use it.
-
-### Step 6: Publish
-
-**GitHub Action auto-publishes on merge to main.** See [Publishing Workflow](#publishing-workflow) for details.
-
 ---
-
-## SKILL.md Template
-
-```yaml
----
-name: <skill-name>
-description: <1-1024 chars>
----
-
-# <Title>
-
-## When to Use
-<trigger phrases>
 
 ## Core Process
-<numbered workflow>
 
-## Reference
-<examples, patterns, anti-patterns>
+### Step 1: Capture Intent
+
+**Ask clarifying questions. See "CRITICAL" section above.**
+
+### Step 2: Generate SKILL.md
+
+**Mandatory frontmatter:**
+```yaml
+---
+name: <skill-name>        # kebab-case
+description: <1-1024 chars, MUST be "pushy">
+---
 ```
 
-### Frontmatter Fields (ALL REQUIRED)
+**Mandatory sections:**
+1. `## When to Use` — Trigger phrases and contexts
+2. `## Core Process` — Numbered workflow
+3. `## Reference` — Examples, patterns, anti-patterns
 
-| Field | Constraints |
-|-------|-------------|
-| `name` | kebab-case |
-| `description` | 1-1024 chars |
+**Pushy description example:**
+```
+❌ Weak: "Generate Terraform modules for AWS."
+✅ Pushy: "Generate Terraform modules for AWS. Use when user asks to 'create terraform module', 'build infrastructure as code', or mentions Terraform + AWS. Triggers on VPC, EC2, S3, RDS requests."
+```
 
----
-
-## tile.json
+### Step 3: Generate tile.json
 
 ```json
 {
@@ -142,98 +81,94 @@ description: <1-1024 chars>
 }
 ```
 
-### Critical Rules
+**Rules:**
+- `name` MUST start with `steio-skills/`
+- `version` MUST be `0.1.0` for new tiles (never `0.0.1` or `1.0.0`)
+- `private: true` until production-ready
 
-- **name MUST start with `steio-skills/`** — e.g., `"steio-skills/redis-cache-monitor"`
-- **version MUST be `0.1.0`** for new tiles — never `0.0.1` or `1.0.0`
-- **private MUST be `true`** for unpublished/pre-production tiles
-- **SKILL.md frontmatter name MUST be kebab-case** — e.g., `name: redis-cache-monitor`
+### Step 4: Generate AGENTS.md
 
-For complete field reference, see [Configuration Files](../../docs/configuration.md).
+AGENTS.md provides project-level context that agents load automatically.
 
-**Validation:** At least one of `docs`, `steering`, or `skills` required.
+**Template:**
+```markdown
+# <Project Name>
 
----
+Brief description.
 
-## Eval Template
+## Project Structure
 
-**task.md:**
+\`\`\`
+<project>/
+├── src/
+├── tests/
+└── docs/
+\`\`\`
+
+## Key Commands
+
+| Command | Purpose |
+|---------|---------|
+| `npm test` | Run tests |
+
+## Architecture Decisions
+
+- Decision 1: Why we made this choice
+```
+
+**Required sections:** Project overview, Directory structure, Build/test commands
+
+### Step 5: Generate Evals
+
+**Minimum 2 scenarios per tile.**
+
+**task.md structure:**
 ```markdown
 # <Scenario Name>
 
 ## Setup
-
-<Describe prerequisites: environment, files, tools needed>
+<prerequisites>
 
 ## Task
-
-<User prompt or scenario description>
+<user prompt>
 
 ## Expected Behavior
-
-<List specific expected outcomes>
+<outcomes>
 
 ## Validation
-
-<Checklist of what to verify>
+<checklist>
 ```
 
-**criteria.json:**
+**criteria.json structure:**
 ```json
 {
-  "context": "<description of what is being evaluated>",
+  "context": "<what is being evaluated>",
   "type": "weighted_checklist",
   "checklist": [
-    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "INTENT" },
-    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "DESIGN" },
-    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "MUST_NOT" }
+    { "name": "<criterion>", "description": "<what>", "max_score": 20, "category": "INTENT" }
   ]
 }
 ```
 
-**Required fields in criteria.json:**
-- `context`: String describing what is being evaluated
-- `type`: Must be `"weighted_checklist"`
-- `checklist`: Array of objects, each with:
-  - `name`: Criterion identifier (kebab-case)
-  - `description`: What is being checked
-  - `max_score`: Points for this criterion
-  - `category`: One of `INTENT`, `DESIGN`, `MUST_NOT`, `MINIMALITY`, `REUSE`, `INTEGRATION`, `EDGE_CASE`
+**Rules:**
+- `max_score` sums to 100 per criteria.json
+- Every item must have `category` (INTENT, DESIGN, MUST_NOT, MINIMALITY, REUSE, INTEGRATION, EDGE_CASE)
+- Use multiple category types
 
-**Required sections in task.md:**
-- `## Setup` — Prerequisites
-- `## Task` — What the agent should do
-- `## Expected Behavior` — Expected outcomes
-- `## Validation` — How to verify success
+### Step 6: Validate
 
-### Rules
+```bash
+tessl tile lint ./<tile>      # Validate structure
+tessl skill review ./<tile>   # Quality review
+```
 
-- **Minimum 2 scenarios** per tile
-- **max_score sums to 100** per criteria.json
-- **Every checklist item must have category** — see [Eval Criteria Categories](../../docs/eval-criteria.md)
-- **Use multiple category types** — not all INTENT
-- **Criteria names specific and actionable**
-- **context field required** in every criteria.json
+**Score thresholds:** 90%+ ready | 70-89% minor fixes | <70% needs work
 
 ---
 
-## Evaluation Lifecycle
+## Evaluation Workflow
 
-After generating a tile, guide the user through evaluation:
-
-### Phase 1: Skill Review
-
-```bash
-tessl skill lint ./<tile>           # Validate structure
-tessl skill review ./<tile>         # Quality review
-tessl skill review --optimize ./<tile>  # Auto-fix issues
-```
-
-**Score thresholds:** 90%+ = ready | 70-89% = minor fixes | <70% = needs work
-
-### Phase 2: Scenario-Based Evals
-
-Test if agents perform better WITH the skill:
+### Local Evals
 
 ```bash
 tessl scenario generate <tile> --count=3 --workspace=<ws>
@@ -243,103 +178,57 @@ tessl eval run <tile> --workspace=<ws>
 
 **Metrics:** Baseline vs With-context → Delta (+pp = skill helps)
 
-### Phase 3: Multi-Model Comparison
+### Description Optimization (CRITICAL for triggering)
 
-```bash
-tessl eval run <tile> --agent=claude:claude-haiku-4-5
-tessl eval run <tile> --agent=claude:claude-sonnet-4-6
-tessl eval run <tile> --agent=claude:claude-opus-4-6
-```
+After creating a skill, test the `description` field:
 
-### Phase 4: Documentation Eval
+1. Create `evals/description-queries.json` with should-trigger/should-not-trigger queries
+2. Run trigger eval to measure accuracy
+3. Select description with >90% trigger rate, <10% false positives
 
-Tiles with `describes` field are auto-evaluated on publish for API correctness.
+### Publish to Registry
 
-### Phase 5: Publish to Registry
-
-**CRITICAL: Evals only appear in dashboard after publish.**
+**Evals only appear in dashboard after publish.**
 
 ```bash
 # After PR merged to main
 tessl tile publish ./<tile> --bump patch
 ```
 
-**Why publish is required:**
-- Local evals (`tessl eval run`) only save results locally
-- Dashboard shows evals from **registry only**
-- GitHub Actions auto-publishes on merge (if configured)
-
-**Auto-publish setup:**
-1. Add `TESSL_API_TOKEN` to repo secrets
-2. Workflow `.github/workflows/publish-tiles.yml` handles:
-   - Detect changed tiles
-   - Bump version if needed
-   - Publish to registry
-   - Run evals
-
-**Manual publish checklist:**
-- [ ] PR merged to main
-- [ ] `tessl tile publish ./<tile> --bump patch`
-- [ ] Verify at `tessl.io/registry/<workspace>/<tile>`
-
-### Publish Checklist
-
-| Condition | Action |
-|-----------|--------|
-| Review < 70% | Fix first |
-| Review 70-89% | Consider `--optimize` |
-| Baseline ≈ With-context | Warn: skill adds little value |
-| **After merge** | **Publish to registry** |
-
----
-
-## Companion Skills
-
-After generating a tile, see [Companion Skills](../../docs/companion-skills.md) for the full development lifecycle tiles — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, and tile-creator.
-
----
-
-## Naming Conventions
-
-| Element | Format | Example |
-|---------|--------|---------|
-| Tile dir | kebab-case | `namecheap-terraform` |
-| Skill name | kebab-case | `tailscale-terraform` |
-| Domain | kebab-case | `devops`, `backend` |
-| Scenario | kebab-case | `basic-usage` |
+**Auto-publish:** GitHub Action publishes on merge to main (if configured with `TESSL_API_TOKEN`).
 
 ---
 
 ## Validation Checklist
 
-**ALWAYS validate before reporting completion.** Run `tessl tile lint <path>` to validate automatically.
+**ALWAYS validate before reporting completion.**
 
 ### SKILL.md
 
-- Frontmatter parses as valid YAML
-- `name` is kebab-case
-- `description` ≤ 1024 chars
-- No placeholder text (`<TBD>`, `<TODO>`)
+- [ ] Frontmatter parses as valid YAML
+- [ ] `name` is kebab-case
+- [ ] `description` ≤ 1024 chars
+- [ ] No placeholder text
 
 ### tile.json
 
-- Valid JSON
-- `name` starts with `steio-skills/`
-- `version` is `0.1.0` (never `0.0.1` or `1.0.0`)
-- `private: true` until production-ready
-- At least one of `docs`, `steering`, or `skills` present
+- [ ] Valid JSON
+- [ ] `name` starts with `steio-skills/`
+- [ ] `version` is `0.1.0` for new tiles
+- [ ] `private: true` until production-ready
+- [ ] At least one of `docs`, `steering`, or `skills`
 
 ### Evals
 
-- task.md has: Setup, Task, Expected Behavior, Validation sections
-- criteria.json has: `context`, `type: "weighted_checklist"`, checklist items with `category`
-- max_score sums to 100 per criteria.json
-- Multiple category types used (not all INTENT)
+- [ ] task.md has: Setup, Task, Expected Behavior, Validation
+- [ ] criteria.json has: `context`, `type: "weighted_checklist"`, checklist with `category`
+- [ ] max_score sums to 100
+- [ ] Multiple category types used
 
-### Publishing Rules
+### Publishing
 
-- Increment version before PR
-- Publish at `1.0.0` when stable (passing evals, explicit QA)
+- [ ] Increment version before PR
+- [ ] Publish at `1.0.0` when stable
 
 ---
 
@@ -347,48 +236,16 @@ After generating a tile, see [Companion Skills](../../docs/companion-skills.md) 
 
 | Scenario | Response |
 |----------|----------|
-| Ambiguous request | Ask clarifying questions until unambiguous |
-| Invalid frontmatter | Report specific YAML error with line |
-| Missing domain | Default to `devops`, confirm with user |
-| File exists | Warn, offer overwrite or rename |
-| Review score < 70% | Suggest `tessl skill review --optimize` |
-| Baseline ≈ With-context | Warn skill may add little value |
-| Eval run failed | Suggest `tessl eval retry <id>` |
-
----
-
-## Publishing Workflow
-
-### GitHub Action (Automatic)
-
-**Tiles are auto-published when merged to main.** No manual action needed.
-
-The workflow:
-1. PR merged to `main`
-2. GitHub Action detects `tiles/**` changes
-3. Runs `tessl tile lint` + `tessl skill review`
-4. Publishes to Tessl Registry
-5. Registry auto-runs evals (generates scenario.json if missing)
-6. Dashboard shows impact after eval completes
-
-### Manual Publish (if needed)
-
-```bash
-tessl tile publish ./<tile> --bump patch
-```
-
-### Evals in Registry
-
-| Eval Type | Files Needed | Use Case |
-|-----------|--------------|----------|
-| Local eval | task.md + criteria.json | Development testing |
-| Registry eval | + scenario.json | Published tile evaluation |
-
-**Note:** `tessl tile publish` auto-generates scenario.json if missing.
+| Ambiguous request | Ask clarifying questions |
+| Missing domain | Default to `devops`, confirm |
+| File exists | Warn, offer overwrite |
+| Review < 70% | Suggest `tessl skill review --optimize` |
+| Baseline ≈ With-context | Warn: skill adds little value |
 
 ---
 
 ## Reference
 
-- [Official Tessl Documentation](../../docs/) — creating-skills, creating-tiles, configuration, evaluate-skill-quality, eval-criteria, glossary, llms.txt
-- [Companion Skills](../../docs/companion-skills.md) — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, tile-creator
+- [Configuration](../../docs/configuration.md) — tile.json fields
+- [Eval Criteria](../../docs/eval-criteria.md) — Category types
+- [Companion Skills](../../docs/companion-skills.md) — Related skills
