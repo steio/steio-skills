@@ -104,6 +104,39 @@ description: <1-1024 chars>
 }
 ```
 
+### Critical Rules
+
+- **name MUST start with `steio-skills/`** — example: `"steio-skills/postgres-connection-pool"`
+- **version MUST be `0.1.0`** for new tiles — never `0.0.1` or `1.0.0`
+- **private MUST be `true`** for unpublished/pre-production tiles
+- **SKILL.md frontmatter name MUST be kebab-case** — example: `name: postgres-connection-pool`
+
+### Example
+
+If user requests "create a skill for managing PostgreSQL connection pools":
+
+```json
+{
+  "name": "steio-skills/postgres-connection-pool",
+  "version": "0.1.0",
+  "summary": "Manage PostgreSQL connection pools with best practices",
+  "entrypoint": "AGENTS.md",
+  "private": true,
+  "skills": {
+    "postgres-connection-pool": {
+      "path": "skills/postgres-connection-pool/SKILL.md"
+    }
+  }
+}
+```
+
+```yaml
+---
+name: postgres-connection-pool
+description: Manage PostgreSQL connection pools with best practices for pooling, monitoring, and troubleshooting.
+---
+```
+
 For complete field reference, see [Configuration Files](../../docs/configuration.md).
 
 **Validation:** At least one of `docs`, `steering`, or `skills` required.
@@ -114,24 +147,52 @@ For complete field reference, see [Configuration Files](../../docs/configuration
 
 **task.md:**
 ```markdown
-# <Scenario>
+# <Scenario Name>
 
 ## Setup
+
+<Describe prerequisites: environment, files, tools needed>
+
 ## Task
+
+<User prompt or scenario description>
+
 ## Expected Behavior
+
+<List specific expected outcomes>
+
 ## Validation
+
+<Checklist of what to verify>
 ```
 
 **criteria.json:**
 ```json
 {
-  "context": "<description>",
+  "context": "<description of what is being evaluated>",
   "type": "weighted_checklist",
   "checklist": [
-    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "INTENT" }
+    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "INTENT" },
+    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "DESIGN" },
+    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "MUST_NOT" }
   ]
 }
 ```
+
+**Required fields in criteria.json:**
+- `context`: String describing what is being evaluated
+- `type`: Must be `"weighted_checklist"`
+- `checklist`: Array of objects, each with:
+  - `name`: Criterion identifier (kebab-case)
+  - `description`: What is being checked
+  - `max_score`: Points for this criterion
+  - `category`: One of `INTENT`, `DESIGN`, `MUST_NOT`, `MINIMALITY`, `REUSE`, `INTEGRATION`, `EDGE_CASE`
+
+**Required sections in task.md:**
+- `## Setup` — Prerequisites
+- `## Task` — What the agent should do
+- `## Expected Behavior` — Expected outcomes
+- `## Validation` — How to verify success
 
 **scenario.json** (for codebase evals):
 ```json
@@ -148,10 +209,12 @@ For complete field reference, see [Configuration Files](../../docs/configuration
 
 ### Rules
 
-- Minimum 2 scenarios per tile
-- max_score sums to 100 per criteria.json
-- Criteria names specific and actionable
-- Categories must be valid — see [Eval Criteria Categories](../../docs/eval-criteria.md)
+- **Minimum 2 scenarios** per tile
+- **max_score sums to 100** per criteria.json
+- **Every checklist item must have category** — see [Eval Criteria Categories](../../docs/eval-criteria.md)
+- **Use multiple category types** — not all INTENT
+- **Criteria names specific and actionable**
+- **context field required** in every criteria.json
 
 ---
 
@@ -262,10 +325,10 @@ Check for any of the following issues and report them before finishing:
 
 | Artifact | Check |
 |----------|-------|
-| SKILL.md | Frontmatter parses as valid YAML; `name` and `description` present; no placeholder text (`<TBD>`, `<TODO>`) |
-| tile.json | Valid JSON; `name` in `workspace/tile-name` format; `version` valid semver (start `0.1.0`); at least one of `docs`/`steering`/`skills` present; if `describes` set then `docs` required |
-| Evals | task.md has Setup, Task, Expected Behavior sections; criteria.json `type` is `weighted_checklist`; max_score sums to 100; categories valid (INTENT/DESIGN/MUST_NOT/MINIMALITY/REUSE/INTEGRATION/EDGE_CASE) |
-| Review | `tessl skill review` passes with ≥70% score; suggest `--optimize` if <90% |
+| SKILL.md | Frontmatter parses as valid YAML; `name` (kebab-case) and `description` (≤1024 chars) present; no placeholder text (`<TBD>`, `<TODO>`) |
+| tile.json | Valid JSON; `name` starts with `steio-skills/`; `version` is `0.1.0`; `private: true`; at least one of `docs`/`steering`/`skills` present |
+| Evals | task.md has Setup, Task, Expected Behavior, Validation sections; criteria.json has `context`, `type: "weighted_checklist"`, checklist items with `category`; max_score sums to 100; multiple category types used |
+| Review | `tessl tile lint` passes; all validation rules satisfied |
 
 ---
 
