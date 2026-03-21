@@ -48,16 +48,19 @@ tiles/<domain>/<name>/
 
 1. **SKILL.md** — with valid YAML frontmatter
 2. **tile.json** — with correct schema
-3. **evals/** — 2-3 scenarios with task.md + criteria.json
+3. **evals/** — 2-3 scenarios with task.md + criteria.json + scenario.json
 4. **AGENTS.md** — following existing patterns
 
-### Step 4: Evaluate (Recommended)
+### Step 4: Evaluate Locally
 
-Run skill review and scenario-based evals before publishing:
-1. `tessl skill review ./<tile>` — check best practices
-2. `tessl skill review --optimize ./<tile>` — auto-fix issues
-3. `tessl scenario generate <tile> --count=3` — create test scenarios
-4. `tessl eval run <tile>` — measure skill effectiveness
+Run skill review and scenario-based evals before PR:
+1. `tessl tile lint ./<tile>` — validate structure
+2. `tessl skill review ./<tile>` — check best practices
+3. `tessl eval run ./<tile>` — measure skill effectiveness
+
+### Step 5: Publish
+
+**GitHub Action auto-publishes on merge to main.** See [Publishing Workflow](#publishing-workflow) for details.
 
 ---
 
@@ -167,7 +170,7 @@ For complete field reference, see [Configuration Files](../../docs/configuration
 - `## Expected Behavior` — Expected outcomes
 - `## Validation` — How to verify success
 
-**scenario.json** (for codebase evals):
+**scenario.json** (required for registry evals):
 ```json
 {
   "type": "coding",
@@ -179,6 +182,11 @@ For complete field reference, see [Configuration Files](../../docs/configuration
   }
 }
 ```
+
+**When scenario.json is needed:**
+- **Local evals** (`tessl eval run ./<tile>`): Only task.md + criteria.json required
+- **Registry evals** (after publish): scenario.json required for each scenario
+- **Auto-generation**: `tessl tile publish` generates scenario.json automatically if missing
 
 ### Rules
 
@@ -236,29 +244,6 @@ Tiles with `describes` field are auto-evaluated on publish for API correctness.
 | Review < 70% | Fix first |
 | Review 70-89% | Consider `--optimize` |
 | Baseline ≈ With-context | Warn: skill adds little value |
-
----
-
-## .tileignore (optional)
-
-Exclude files from tile validation and packing. Place in tile root (same level as `tile.json`).
-
-**Default ignored files** (no .tileignore needed):
-- `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`
-
-**Example `.tileignore`:**
-```gitignore
-# Development notes
-notes.md
-TODO.md
-
-# Draft files
-*.draft.md
-```
-
-**Rules:**
-- Links to ignored files cause validation errors
-- Manifest entrypoints (`docs`, `rules`, `skills`) cannot be ignored
 
 ---
 
@@ -323,6 +308,37 @@ After generating a tile, see [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) fo
 | Review score < 70% | Suggest `tessl skill review --optimize` |
 | Baseline ≈ With-context | Warn skill may add little value |
 | Eval run failed | Suggest `tessl eval retry <id>` |
+
+---
+
+## Publishing Workflow
+
+### GitHub Action (Automatic)
+
+**Tiles are auto-published when merged to main.** No manual action needed.
+
+The workflow:
+1. PR merged to `main`
+2. GitHub Action detects `tiles/**` changes
+3. Runs `tessl tile lint` + `tessl skill review`
+4. Publishes to Tessl Registry
+5. Registry auto-runs evals (generates scenario.json if missing)
+6. Dashboard shows impact after eval completes
+
+### Manual Publish (if needed)
+
+```bash
+tessl tile publish ./<tile> --bump patch
+```
+
+### Evals in Registry
+
+| Eval Type | Files Needed | Use Case |
+|-----------|--------------|----------|
+| Local eval | task.md + criteria.json | Development testing |
+| Registry eval | + scenario.json | Published tile evaluation |
+
+**Note:** `tessl tile publish` auto-generates scenario.json if missing.
 
 ---
 
