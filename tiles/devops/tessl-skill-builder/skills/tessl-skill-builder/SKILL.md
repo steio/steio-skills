@@ -13,7 +13,9 @@ Activate when the user says: "create a skill", "build a skill", "generate a tess
 
 ## Core Process
 
-### Step 1: Clarify
+### Step 1: Clarify (MANDATORY)
+
+**ALWAYS ask clarifying questions before generating.** Never generate directly from a prompt.
 
 Ask the user:
 - **Purpose**: What problem does this skill solve?
@@ -21,7 +23,10 @@ Ask the user:
 - **Audience**: Which agent will use it? (Claude Code, Cursor, Copilot, OpenCode)
 - **Tools**: Which tools must the agent use?
 
-If ambiguous, ask ONE clarifying question before generating.
+If the request is clear, ask at least ONE question to confirm understanding.
+If ambiguous, ask multiple questions until unambiguous.
+
+**DO NOT skip this step.** Generation without clarification produces generic, low-quality tiles.
 
 ### Step 2: Generate Tile Structure
 
@@ -46,13 +51,7 @@ tiles/<domain>/<name>/
 3. **evals/** — 2-3 scenarios with task.md + criteria.json
 4. **AGENTS.md** — following existing patterns
 
-### Step 4: Validate
-
-- SKILL.md frontmatter valid YAML
-- tile.json valid JSON, name matches `steio-skills/<slug>`
-- Eval criteria.json type is `weighted_checklist`, max_score sums to 100
-
-### Step 5: Evaluate (Recommended)
+### Step 4: Evaluate (Recommended)
 
 Run skill review and scenario-based evals before publishing:
 1. `tessl skill review ./<tile>` — check best practices
@@ -104,6 +103,13 @@ description: <1-1024 chars>
 }
 ```
 
+### Critical Rules
+
+- **name MUST start with `steio-skills/`** — e.g., `"steio-skills/redis-cache-monitor"`
+- **version MUST be `0.1.0`** for new tiles — never `0.0.1` or `1.0.0`
+- **private MUST be `true`** for unpublished/pre-production tiles
+- **SKILL.md frontmatter name MUST be kebab-case** — e.g., `name: redis-cache-monitor`
+
 For complete field reference, see [Configuration Files](../../docs/configuration.md).
 
 **Validation:** At least one of `docs`, `steering`, or `skills` required.
@@ -114,24 +120,52 @@ For complete field reference, see [Configuration Files](../../docs/configuration
 
 **task.md:**
 ```markdown
-# <Scenario>
+# <Scenario Name>
 
 ## Setup
+
+<Describe prerequisites: environment, files, tools needed>
+
 ## Task
+
+<User prompt or scenario description>
+
 ## Expected Behavior
+
+<List specific expected outcomes>
+
 ## Validation
+
+<Checklist of what to verify>
 ```
 
 **criteria.json:**
 ```json
 {
-  "context": "<description>",
+  "context": "<description of what is being evaluated>",
   "type": "weighted_checklist",
   "checklist": [
-    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "INTENT" }
+    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "INTENT" },
+    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "DESIGN" },
+    { "name": "<criterion>", "description": "<what>", "max_score": <n>, "category": "MUST_NOT" }
   ]
 }
 ```
+
+**Required fields in criteria.json:**
+- `context`: String describing what is being evaluated
+- `type`: Must be `"weighted_checklist"`
+- `checklist`: Array of objects, each with:
+  - `name`: Criterion identifier (kebab-case)
+  - `description`: What is being checked
+  - `max_score`: Points for this criterion
+  - `category`: One of `INTENT`, `DESIGN`, `MUST_NOT`, `MINIMALITY`, `REUSE`, `INTEGRATION`, `EDGE_CASE`
+
+**Required sections in task.md:**
+- `## Setup` — Prerequisites
+- `## Task` — What the agent should do
+- `## Expected Behavior` — Expected outcomes
+- `## Validation` — How to verify success
 
 **scenario.json** (for codebase evals):
 ```json
@@ -148,10 +182,12 @@ For complete field reference, see [Configuration Files](../../docs/configuration
 
 ### Rules
 
-- Minimum 2 scenarios per tile
-- max_score sums to 100 per criteria.json
-- Criteria names specific and actionable
-- Categories must be valid — see [Eval Criteria Categories](../../docs/eval-criteria.md)
+- **Minimum 2 scenarios** per tile
+- **max_score sums to 100** per criteria.json
+- **Every checklist item must have category** — see [Eval Criteria Categories](../../docs/eval-criteria.md)
+- **Use multiple category types** — not all INTENT
+- **Criteria names specific and actionable**
+- **context field required** in every criteria.json
 
 ---
 
@@ -243,29 +279,36 @@ After generating a tile, see [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) fo
 
 ---
 
-## Mandatory Versioning
+## Validation Checklist
 
-Every published tile must have a `version` field in `tile.json` following [Semver](https://semver.org/).
+**ALWAYS validate before reporting completion.** Run `tessl tile lint <path>` to validate automatically.
 
-### Tessl Rules
+### SKILL.md
 
-- **Start at `0.1.0`** — never `0.0.1` or `1.0.0`
-- **Publish at `1.0.0`** when ready for production (stable behavior, passing evals)
-- **Keep `private: true`** until `1.0.0` or explicit QA
-- **Increment before PR** — bump on any functional change
+- Frontmatter parses as valid YAML
+- `name` is kebab-case
+- `description` ≤ 1024 chars
+- No placeholder text (`<TBD>`, `<TODO>`)
 
----
+### tile.json
 
-## Validators (run after generation)
+- Valid JSON
+- `name` starts with `steio-skills/`
+- `version` is `0.1.0` (never `0.0.1` or `1.0.0`)
+- `private: true` until production-ready
+- At least one of `docs`, `steering`, or `skills` present
 
-Check for any of the following issues and report them before finishing:
+### Evals
 
-| Artifact | Check |
-|----------|-------|
-| SKILL.md | Frontmatter parses as valid YAML; `name` and `description` present; no placeholder text (`<TBD>`, `<TODO>`) |
-| tile.json | Valid JSON; `name` in `workspace/tile-name` format; `version` valid semver (start `0.1.0`); at least one of `docs`/`steering`/`skills` present; if `describes` set then `docs` required |
-| Evals | task.md has Setup, Task, Expected Behavior sections; criteria.json `type` is `weighted_checklist`; max_score sums to 100; categories valid (INTENT/DESIGN/MUST_NOT/MINIMALITY/REUSE/INTEGRATION/EDGE_CASE) |
-| Review | `tessl skill review` passes with ≥70% score; suggest `--optimize` if <90% |
+- task.md has: Setup, Task, Expected Behavior, Validation sections
+- criteria.json has: `context`, `type: "weighted_checklist"`, checklist items with `category`
+- max_score sums to 100 per criteria.json
+- Multiple category types used (not all INTENT)
+
+### Publishing Rules
+
+- Increment version before PR
+- Publish at `1.0.0` when stable (passing evals, explicit QA)
 
 ---
 
@@ -273,7 +316,7 @@ Check for any of the following issues and report them before finishing:
 
 | Scenario | Response |
 |----------|----------|
-| Ambiguous request | Ask ONE clarifying question |
+| Ambiguous request | Ask clarifying questions until unambiguous |
 | Invalid frontmatter | Report specific YAML error with line |
 | Missing domain | Default to `devops`, confirm with user |
 | File exists | Warn, offer overwrite or rename |
@@ -283,14 +326,7 @@ Check for any of the following issues and report them before finishing:
 
 ---
 
-## Official Documentation
+## Reference
 
-For complete Tessl documentation, see [docs/](../../docs/):
-
-- [Creating Skills](../../docs/creating-skills.md) — How to create and publish skills
-- [Creating Tiles](../../docs/creating-tiles.md) — Tiles containing skills, docs, and rules
-- [Configuration Files](../../docs/configuration.md) — tile.json and tessl.json reference
-- [Evaluate Skill Quality](../../docs/evaluate-skill-quality.md) — Scenario-based evaluations
-- [Eval Criteria Categories](../../docs/eval-criteria.md) — Checklist categories for criteria.json
-- [Glossary](../../docs/glossary.md) — Key concepts and terminology
-- [LLMs.txt Index](../../docs/llms.txt) — Full documentation index for AI consumption
+- [Official Tessl Documentation](../../docs/) — creating-skills, creating-tiles, configuration, evaluate-skill-quality, eval-criteria, glossary, llms.txt
+- [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, tile-creator
