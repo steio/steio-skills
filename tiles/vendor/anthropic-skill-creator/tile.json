@@ -1,6 +1,6 @@
 {
   "name": "steio-skills/anthropic-skill-creator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "summary": "Fork of Anthropic's skill-creator for creating and improving agent skills",
   "entrypoint": "AGENTS.md",
   "private": true,
