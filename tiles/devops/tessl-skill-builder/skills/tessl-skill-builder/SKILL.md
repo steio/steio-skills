@@ -1,11 +1,25 @@
 ---
 name: tessl-skill-builder
-description: Generate Tessl skills from prompts with full Tessl spec compliance. Creates SKILL.md, tile.json, eval scenarios, AGENTS.md, and docs. Auto-triggers on "create a skill", "build a skill", "generate a tessl skill", or when user wants to scaffold a new agent capability.
+description: Generate production-ready Tessl skills from prompts with full Tessl spec compliance. Creates SKILL.md, tile.json, eval scenarios, AGENTS.md, and docs. Auto-triggers on "create a skill", "build a skill", "generate a tessl skill", or when user wants to scaffold a new agent capability tile. Integrates with skill-creator methodology for interview, draft, and iteration workflow.
 ---
 
 # Tessl Skill Builder
 
-Meta-skill that generates production-ready Tessl skills from prompts. Every generated tile includes SKILL.md, tile.json, eval scenarios, AGENTS.md, and optional docs — all matching Tessl spec.
+Meta-skill that generates production-ready Tessl skills from prompts. Combines **skill-creator** methodology with **Tessl-specific** templates for complete workflow: interview → draft → eval → publish.
+
+## Architecture
+
+```
+skill-creator methodology     tessl-skill-builder specifics
+─────────────────────────     ─────────────────────────────
+Interview & capture intent  →  Tessl namespace rules
+Draft SKILL.md              →  tile.json + eval templates
+Test & iterate              →  tessl eval run
+Description optimization    →  GitHub Actions publish
+```
+
+**Uses `skill-creator` for:** interview methodology, iteration workflow, description optimization.
+**Adds Tessl-specifics:** tile.json schema, eval format (category/context), registry publishing.
 
 ## Trigger Phrases
 
@@ -13,15 +27,17 @@ Activate when the user says: "create a skill", "build a skill", "generate a tess
 
 ## Core Process
 
-### Step 1: Clarify (MANDATORY)
+### Step 1: Capture Intent (MANDATORY)
 
-**ALWAYS ask clarifying questions before generating.** Never generate directly from a prompt.
+**ALWAYS ask clarifying questions before generating.** Use skill-creator interview methodology:
 
-Ask the user:
-- **Purpose**: What problem does this skill solve?
-- **Domain**: devops, backend, security, frontend, qa?
-- **Audience**: Which agent will use it? (Claude Code, Cursor, Copilot, OpenCode)
-- **Tools**: Which tools must the agent use?
+1. **Purpose**: What problem does this skill solve?
+2. **When**: What user phrases/contexts should trigger it?
+3. **Output**: What's the expected output format?
+4. **Domain**: devops, backend, security, frontend, qa?
+5. **Audience**: Which agent will use it? (Claude Code, Cursor, Copilot, OpenCode)
+6. **Tools**: Which tools must the agent use?
+7. **Test cases**: Should we set up evals? (Skills with objectively verifiable outputs benefit from test cases)
 
 If the request is clear, ask at least ONE question to confirm understanding.
 If ambiguous, ask multiple questions until unambiguous.
@@ -48,16 +64,39 @@ tiles/<domain>/<name>/
 
 1. **SKILL.md** — with valid YAML frontmatter
 2. **tile.json** — with correct schema
-3. **evals/** — 2-3 scenarios with task.md + criteria.json
+3. **evals/** — 2-3 scenarios with task.md + criteria.json + scenario.json
 4. **AGENTS.md** — following existing patterns
 
-### Step 4: Evaluate (Recommended)
+### Step 4: Test & Iterate
 
-Run skill review and scenario-based evals before publishing:
-1. `tessl skill review ./<tile>` — check best practices
-2. `tessl skill review --optimize ./<tile>` — auto-fix issues
-3. `tessl scenario generate <tile> --count=3` — create test scenarios
-4. `tessl eval run <tile>` — measure skill effectiveness
+Use skill-creator iteration methodology:
+
+1. **Create test prompts** — 2-3 realistic user prompts
+2. **Run baseline** — test without skill
+3. **Run with skill** — test with skill loaded
+4. **Compare results** — measure improvement
+5. **Gather feedback** — user reviews outputs
+6. **Improve skill** — iterate until satisfied
+
+```bash
+tessl tile lint ./<tile>      # Validate structure
+tessl skill review ./<tile>   # Check best practices
+tessl eval run ./<tile>       # Measure effectiveness
+```
+
+### Step 5: Optimize Description
+
+The `description` field in frontmatter is the **primary triggering mechanism**. After creating a skill:
+
+1. Generate 20 trigger eval queries (mix of should-trigger and should-not-trigger)
+2. Run description optimization loop
+3. Apply best description based on test scores
+
+**Tip:** Make descriptions "pushy" to combat under-triggering. Include both what the skill does AND specific contexts for when to use it.
+
+### Step 6: Publish
+
+**GitHub Action auto-publishes on merge to main.** See [Publishing Workflow](#publishing-workflow) for details.
 
 ---
 
@@ -167,7 +206,7 @@ For complete field reference, see [Configuration Files](../../docs/configuration
 - `## Expected Behavior` — Expected outcomes
 - `## Validation` — How to verify success
 
-**scenario.json** (for codebase evals):
+**scenario.json** (required for registry evals):
 ```json
 {
   "type": "coding",
@@ -179,6 +218,11 @@ For complete field reference, see [Configuration Files](../../docs/configuration
   }
 }
 ```
+
+**When scenario.json is needed:**
+- **Local evals** (`tessl eval run ./<tile>`): Only task.md + criteria.json required
+- **Registry evals** (after publish): scenario.json required for each scenario
+- **Auto-generation**: `tessl tile publish` generates scenario.json automatically if missing
 
 ### Rules
 
@@ -239,32 +283,9 @@ Tiles with `describes` field are auto-evaluated on publish for API correctness.
 
 ---
 
-## .tileignore (optional)
-
-Exclude files from tile validation and packing. Place in tile root (same level as `tile.json`).
-
-**Default ignored files** (no .tileignore needed):
-- `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`
-
-**Example `.tileignore`:**
-```gitignore
-# Development notes
-notes.md
-TODO.md
-
-# Draft files
-*.draft.md
-```
-
-**Rules:**
-- Links to ignored files cause validation errors
-- Manifest entrypoints (`docs`, `rules`, `skills`) cannot be ignored
-
----
-
 ## Companion Skills
 
-After generating a tile, see [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) for the full development lifecycle tiles — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, and tile-creator.
+After generating a tile, see [Companion Skills](../../docs/companion-skills.md) for the full development lifecycle tiles — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, and tile-creator.
 
 ---
 
@@ -326,7 +347,38 @@ After generating a tile, see [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) fo
 
 ---
 
+## Publishing Workflow
+
+### GitHub Action (Automatic)
+
+**Tiles are auto-published when merged to main.** No manual action needed.
+
+The workflow:
+1. PR merged to `main`
+2. GitHub Action detects `tiles/**` changes
+3. Runs `tessl tile lint` + `tessl skill review`
+4. Publishes to Tessl Registry
+5. Registry auto-runs evals (generates scenario.json if missing)
+6. Dashboard shows impact after eval completes
+
+### Manual Publish (if needed)
+
+```bash
+tessl tile publish ./<tile> --bump patch
+```
+
+### Evals in Registry
+
+| Eval Type | Files Needed | Use Case |
+|-----------|--------------|----------|
+| Local eval | task.md + criteria.json | Development testing |
+| Registry eval | + scenario.json | Published tile evaluation |
+
+**Note:** `tessl tile publish` auto-generates scenario.json if missing.
+
+---
+
 ## Reference
 
 - [Official Tessl Documentation](../../docs/) — creating-skills, creating-tiles, configuration, evaluate-skill-quality, eval-criteria, glossary, llms.txt
-- [COMPANION_SKILLS.md](../../COMPANION_SKILLS.md) — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, tile-creator
+- [Companion Skills](../../docs/companion-skills.md) — eval-setup, eval-improve, compare-skill-model-performance, developing-tessl-skills, tile-creator

@@ -6,6 +6,7 @@ This directory contains official Tessl documentation for AI consumption, sourced
 
 | Document | Description |
 |----------|-------------|
+| [companion-skills.md](companion-skills.md) | Related skills for full development lifecycle |
 | [creating-skills.md](creating-skills.md) | How to create, publish, and install skills |
 | [creating-tiles.md](creating-tiles.md) | Creating tiles with skills, docs, and rules |
 | [configuration.md](configuration.md) | tile.json and tessl.json reference |
