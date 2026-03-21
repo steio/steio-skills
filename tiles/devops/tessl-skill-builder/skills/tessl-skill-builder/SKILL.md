@@ -104,7 +104,7 @@ description: <1-1024 chars>
 }
 ```
 
-For complete field reference, see [Configuration Files](docs/configuration.md).
+For complete field reference, see [Configuration Files](../../docs/configuration.md).
 
 **Validation:** At least one of `docs`, `steering`, or `skills` required.
 
@@ -151,7 +151,7 @@ For complete field reference, see [Configuration Files](docs/configuration.md).
 - Minimum 2 scenarios per tile
 - max_score sums to 100 per criteria.json
 - Criteria names specific and actionable
-- Categories must be valid — see [Eval Criteria Categories](docs/eval-criteria.md)
+- Categories must be valid — see [Eval Criteria Categories](../../docs/eval-criteria.md)
 
 ---
 
@@ -285,12 +285,12 @@ Check for any of the following issues and report them before finishing:
 
 ## Official Documentation
 
-For complete Tessl documentation, see [docs/](docs/):
+For complete Tessl documentation, see [docs/](../../docs/):
 
-- [Creating Skills](docs/creating-skills.md) — How to create and publish skills
-- [Creating Tiles](docs/creating-tiles.md) — Tiles containing skills, docs, and rules
-- [Configuration Files](docs/configuration.md) — tile.json and tessl.json reference
-- [Evaluate Skill Quality](docs/evaluate-skill-quality.md) — Scenario-based evaluations
-- [Eval Criteria Categories](docs/eval-criteria.md) — Checklist categories for criteria.json
-- [Glossary](docs/glossary.md) — Key concepts and terminology
-- [LLMs.txt Index](docs/llms.txt) — Full documentation index for AI consumption
+- [Creating Skills](../../docs/creating-skills.md) — How to create and publish skills
+- [Creating Tiles](../../docs/creating-tiles.md) — Tiles containing skills, docs, and rules
+- [Configuration Files](../../docs/configuration.md) — tile.json and tessl.json reference
+- [Evaluate Skill Quality](../../docs/evaluate-skill-quality.md) — Scenario-based evaluations
+- [Eval Criteria Categories](../../docs/eval-criteria.md) — Checklist categories for criteria.json
+- [Glossary](../../docs/glossary.md) — Key concepts and terminology
+- [LLMs.txt Index](../../docs/llms.txt) — Full documentation index for AI consumption
