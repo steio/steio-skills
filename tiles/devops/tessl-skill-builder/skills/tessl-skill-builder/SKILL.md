@@ -273,6 +273,33 @@ tessl eval run <tile> --agent=claude:claude-opus-4-6
 
 Tiles with `describes` field are auto-evaluated on publish for API correctness.
 
+### Phase 5: Publish to Registry
+
+**CRITICAL: Evals only appear in dashboard after publish.**
+
+```bash
+# After PR merged to main
+tessl tile publish ./<tile> --bump patch
+```
+
+**Why publish is required:**
+- Local evals (`tessl eval run`) only save results locally
+- Dashboard shows evals from **registry only**
+- GitHub Actions auto-publishes on merge (if configured)
+
+**Auto-publish setup:**
+1. Add `TESSL_API_TOKEN` to repo secrets
+2. Workflow `.github/workflows/publish-tiles.yml` handles:
+   - Detect changed tiles
+   - Bump version if needed
+   - Publish to registry
+   - Run evals
+
+**Manual publish checklist:**
+- [ ] PR merged to main
+- [ ] `tessl tile publish ./<tile> --bump patch`
+- [ ] Verify at `tessl.io/registry/<workspace>/<tile>`
+
 ### Publish Checklist
 
 | Condition | Action |
@@ -280,6 +307,7 @@ Tiles with `describes` field are auto-evaluated on publish for API correctness.
 | Review < 70% | Fix first |
 | Review 70-89% | Consider `--optimize` |
 | Baseline ≈ With-context | Warn: skill adds little value |
+| **After merge** | **Publish to registry** |
 
 ---
 

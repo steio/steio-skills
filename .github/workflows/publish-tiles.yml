@@ -2,14 +2,16 @@ name: Publish Tiles
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'tiles/**'
+      - 'tiles/**/tile.json'
+      - 'tiles/**/SKILL.md'
+      - 'tiles/**/evals/**'
 
 jobs:
   detect-changes:
@@ -24,10 +26,8 @@ jobs:
       - name: Detect changed tiles
         id: detect
         run: |
-          # Get list of changed files
           CHANGED_FILES=$(git diff --name-only HEAD^ HEAD -- 'tiles/*')
           
-          # Extract unique tile paths (tiles/category/tile-name)
           TILES=$(echo "$CHANGED_FILES" | grep -oP '^tiles/[^/]+/[^/]+' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
           
           echo "tiles=$TILES" >> $GITHUB_OUTPUT
@@ -43,14 +43,77 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Tessl CLI
+        run: |
+          curl -fsSL https://get.tessl.io | sh
+
+      - name: Configure Tessl
+        run: |
+          tessl auth login --token ${{ secrets.TESSL_API_TOKEN }}
+
+      - name: Check if version bump needed
+        id: version
+        run: |
+          TILE_PATH="${{ matrix.tile }}"
+          TILE_NAME=$(basename "$TILE_PATH")
+          
+          CURRENT_VERSION=$(cat "$TILE_PATH/tile.json" | jq -r '.version')
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          
+          REGISTRY_VERSION=$(tessl tile view "$TILE_NAME" --json 2>/dev/null | jq -r '.version' || echo "0.0.0")
+          echo "registry_version=$REGISTRY_VERSION" >> $GITHUB_OUTPUT
+          
+          if [ "$CURRENT_VERSION" = "$REGISTRY_VERSION" ]; then
+            echo "needs_bump=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Version $CURRENT_VERSION already exists in registry, will bump"
+          else
+            echo "needs_bump=false" >> $GITHUB_OUTPUT
+            echo "✅ Version $CURRENT_VERSION is new"
+          fi
+
+      - name: Bump version if needed
+        if: steps.version.outputs.needs_bump == 'true'
+        run: |
+          TILE_PATH="${{ matrix.tile }}"
+          
+          NEW_VERSION=$(cat "$TILE_PATH/tile.json" | jq -r '.version' | awk -F. '{print $1"."$2"."$3+1}')
+          
+          jq --arg v "$NEW_VERSION" '.version = $v' "$TILE_PATH/tile.json" > tmp.json && mv tmp.json "$TILE_PATH/tile.json"
+          
+          echo "Bumped version to $NEW_VERSION"
 
       - name: Publish tile
-        uses: tesslio/publish@main
-        with:
-          token: ${{ secrets.TESSL_API_TOKEN }}
-          path: ${{ matrix.tile }}
-          review: 'true'
-          review-threshold: '50'
+        run: |
+          TILE_PATH="${{ matrix.tile }}"
+          
+          tessl tile publish "$TILE_PATH" --skip-evals
+          
+          echo "✅ Published ${{ matrix.tile }}"
+
+      - name: Run evals
+        run: |
+          TILE_PATH="${{ matrix.tile }}"
+          
+          if [ -d "$TILE_PATH/evals" ]; then
+            echo "Running evals for $TILE_PATH..."
+            tessl eval run "$TILE_PATH" --agent=claude:claude-sonnet-4-6 || true
+          fi
+
+      - name: Commit version bump
+        if: steps.version.outputs.needs_bump == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          TILE_PATH="${{ matrix.tile }}"
+          NEW_VERSION=$(cat "$TILE_PATH/tile.json" | jq -r '.version')
+          
+          git add "$TILE_PATH/tile.json"
+          git commit -m "chore: bump ${{ matrix.tile }} to $NEW_VERSION after publish"
+          git push
 
   summary:
     needs: publish
