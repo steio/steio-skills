@@ -13,7 +13,9 @@ Activate when the user says: "create a skill", "build a skill", "generate a tess
 
 ## Core Process
 
-### Step 1: Clarify
+### Step 1: Clarify (MANDATORY)
+
+**ALWAYS ask clarifying questions before generating.** Never generate directly from a prompt.
 
 Ask the user:
 - **Purpose**: What problem does this skill solve?
@@ -21,7 +23,10 @@ Ask the user:
 - **Audience**: Which agent will use it? (Claude Code, Cursor, Copilot, OpenCode)
 - **Tools**: Which tools must the agent use?
 
-If ambiguous, ask ONE clarifying question before generating.
+If the request is clear, ask at least ONE question to confirm understanding.
+If ambiguous, ask multiple questions until unambiguous.
+
+**DO NOT skip this step.** Generation without clarification produces generic, low-quality tiles.
 
 ### Step 2: Generate Tile Structure
 
@@ -46,13 +51,7 @@ tiles/<domain>/<name>/
 3. **evals/** — 2-3 scenarios with task.md + criteria.json
 4. **AGENTS.md** — following existing patterns
 
-### Step 4: Validate
-
-- SKILL.md frontmatter valid YAML
-- tile.json valid JSON, name matches `steio-skills/<slug>`
-- Eval criteria.json type is `weighted_checklist`, max_score sums to 100
-
-### Step 5: Evaluate (Recommended)
+### Step 4: Evaluate (Recommended)
 
 Run skill review and scenario-based evals before publishing:
 1. `tessl skill review ./<tile>` — check best practices
@@ -106,36 +105,10 @@ description: <1-1024 chars>
 
 ### Critical Rules
 
-- **name MUST start with `steio-skills/`** — example: `"steio-skills/postgres-connection-pool"`
+- **name MUST start with `steio-skills/`** — e.g., `"steio-skills/redis-cache-monitor"`
 - **version MUST be `0.1.0`** for new tiles — never `0.0.1` or `1.0.0`
 - **private MUST be `true`** for unpublished/pre-production tiles
-- **SKILL.md frontmatter name MUST be kebab-case** — example: `name: postgres-connection-pool`
-
-### Example
-
-If user requests "create a skill for managing PostgreSQL connection pools":
-
-```json
-{
-  "name": "steio-skills/postgres-connection-pool",
-  "version": "0.1.0",
-  "summary": "Manage PostgreSQL connection pools with best practices",
-  "entrypoint": "AGENTS.md",
-  "private": true,
-  "skills": {
-    "postgres-connection-pool": {
-      "path": "skills/postgres-connection-pool/SKILL.md"
-    }
-  }
-}
-```
-
-```yaml
----
-name: postgres-connection-pool
-description: Manage PostgreSQL connection pools with best practices for pooling, monitoring, and troubleshooting.
----
-```
+- **SKILL.md frontmatter name MUST be kebab-case** — e.g., `name: redis-cache-monitor`
 
 For complete field reference, see [Configuration Files](../../docs/configuration.md).
 
@@ -321,14 +294,15 @@ Every published tile must have a `version` field in `tile.json` following [Semve
 
 ## Validators (run after generation)
 
-Check for any of the following issues and report them before finishing:
+**ALWAYS validate before reporting completion.** Check for issues:
 
 | Artifact | Check |
 |----------|-------|
 | SKILL.md | Frontmatter parses as valid YAML; `name` (kebab-case) and `description` (≤1024 chars) present; no placeholder text (`<TBD>`, `<TODO>`) |
 | tile.json | Valid JSON; `name` starts with `steio-skills/`; `version` is `0.1.0`; `private: true`; at least one of `docs`/`steering`/`skills` present |
 | Evals | task.md has Setup, Task, Expected Behavior, Validation sections; criteria.json has `context`, `type: "weighted_checklist"`, checklist items with `category`; max_score sums to 100; multiple category types used |
-| Review | `tessl tile lint` passes; all validation rules satisfied |
+
+Run `tessl tile lint <path>` to validate automatically.
 
 ---
 
@@ -336,7 +310,7 @@ Check for any of the following issues and report them before finishing:
 
 | Scenario | Response |
 |----------|----------|
-| Ambiguous request | Ask ONE clarifying question |
+| Ambiguous request | Ask clarifying questions until unambiguous |
 | Invalid frontmatter | Report specific YAML error with line |
 | Missing domain | Default to `devops`, confirm with user |
 | File exists | Warn, offer overwrite or rename |
