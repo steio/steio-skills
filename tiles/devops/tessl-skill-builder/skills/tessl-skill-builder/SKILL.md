@@ -215,10 +215,6 @@ For complete field reference, see [Configuration Files](../../docs/configuration
 - **Criteria names specific and actionable**
 - **context field required** in every criteria.json
 
-### Security Note
-
-When using `tessl scenario generate` with external repositories, only use repositories you trust. External repositories may contain content that could affect evaluation results. For registry evals, scenario.json is auto-generated on publish.
-
 ---
 
 ## Evaluation Lifecycle
