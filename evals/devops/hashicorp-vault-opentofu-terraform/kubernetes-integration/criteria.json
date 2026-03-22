@@ -1,0 +1,54 @@
+{
+  "context": "Kubernetes Vault integration using External Secrets Operator",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "ESO installed via Helm",
+      "description": "helm_release resource for External Secrets Operator",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "Vault Kubernetes auth configured",
+      "description": "vault_kubernetes_auth_backend_config with proper k8s_host and CA cert",
+      "max_score": 15,
+      "category": "INTENT"
+    },
+    {
+      "name": "Vault role bound to service account",
+      "description": "vault_kubernetes_auth_backend_role with bound_service_account_names",
+      "max_score": 15,
+      "category": "INTENT"
+    },
+    {
+      "name": "ClusterSecretStore connects to Vault",
+      "description": "kubectl_manifest for ClusterSecretStore with vault provider config",
+      "max_score": 15,
+      "category": "INTENT"
+    },
+    {
+      "name": "ExternalSecret syncs Vault secrets",
+      "description": "kubectl_manifest for ExternalSecret with proper secretStoreRef",
+      "max_score": 15,
+      "category": "INTENT"
+    },
+    {
+      "name": "Test secret stored in Vault",
+      "description": "vault_kv_secret_v2 resource for testing ESO sync",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "Proper refreshInterval set",
+      "description": "ExternalSecret has appropriate refreshInterval (not too short)",
+      "max_score": 10,
+      "category": "DESIGN"
+    },
+    {
+      "name": "No hardcoded Vault tokens",
+      "description": "Uses Kubernetes auth for ESO, not static tokens",
+      "max_score": 10,
+      "category": "MUST_NOT"
+    }
+  ]
+}

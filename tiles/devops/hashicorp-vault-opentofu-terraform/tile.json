@@ -1,0 +1,12 @@
+{
+  "name": "steio-skills/hashicorp-vault-opentofu-terraform",
+  "version": "0.1.0",
+  "summary": "Manage HashiCorp Vault infrastructure as code with Terraform/OpenTofu. Covers secrets engines, auth methods, policies, dynamic credentials, and Kubernetes integration for multi-cloud enterprise environments.",
+  "entrypoint": "AGENTS.md",
+  "private": true,
+  "skills": {
+    "hashicorp-vault-opentofu-terraform": {
+      "path": "skills/hashicorp-vault-opentofu-terraform/SKILL.md"
+    }
+  }
+}
