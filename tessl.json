@@ -11,6 +11,9 @@
     "steio-skills/github-actions": {
       "source": "file:./tiles/devops/github-actions"
     },
+    "steio-skills/hashicorp-vault-opentofu-terraform": {
+      "source": "file:./tiles/devops/hashicorp-vault-opentofu-terraform"
+    },
     "steio-skills/code-review": {
       "source": "file:./tiles/backend/code-review"
     },
@@ -40,6 +43,9 @@
     },
     "steio-skills/anthropic-skill-creator": {
       "source": "file:./tiles/vendor/anthropic-skill-creator"
+    },
+    "steio-skills/tessl-skill-builder": {
+      "version": "0.3.10"
     }
   }
 }

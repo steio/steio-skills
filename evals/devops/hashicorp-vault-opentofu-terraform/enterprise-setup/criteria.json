@@ -1,0 +1,54 @@
+{
+  "context": "Enterprise multi-cloud Vault setup with Terraform/OpenTofu",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Provider uses AppRole auth (not hardcoded token)",
+      "description": "Provider configured with auth_login block using approle path",
+      "max_score": 15,
+      "category": "MUST_NOT"
+    },
+    {
+      "name": "KV v2 secrets engine mounted",
+      "description": "vault_mount resource for KV v2 at 'secret' path",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "AWS secrets engine configured",
+      "description": "vault_aws_secret_backend and role for dynamic IAM credentials",
+      "max_score": 15,
+      "category": "INTENT"
+    },
+    {
+      "name": "Database secrets engine configured",
+      "description": "vault_database_secret_backend_connection and role for PostgreSQL",
+      "max_score": 15,
+      "category": "INTENT"
+    },
+    {
+      "name": "AppRole auth method enabled with role",
+      "description": "vault_auth_backend and vault_approle_auth_backend_role resources",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "Kubernetes auth method enabled with role",
+      "description": "vault_kubernetes_auth_backend_config and vault_kubernetes_auth_backend_role",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "Least-privilege policies created",
+      "description": "Separate policies for admin, app-read, and ci-deploy use cases",
+      "max_score": 15,
+      "category": "DESIGN"
+    },
+    {
+      "name": "No hardcoded secrets in code",
+      "description": "Uses variables or environment variables, no plain text tokens/passwords",
+      "max_score": 10,
+      "category": "MUST_NOT"
+    }
+  ]
+}
