@@ -7,17 +7,6 @@ description: Manage HashiCorp Vault infrastructure as code with Terraform/OpenTo
 
 Comprehensive guide for managing HashiCorp Vault infrastructure as code using Terraform and OpenTofu.
 
-## When to Use
-
-This skill triggers when:
-
-- User mentions Vault + Terraform/OpenTofu together
-- Requests for secrets management, credential rotation, certificate management
-- Vault auth method configuration (AppRole, Kubernetes, JWT/OIDC)
-- Dynamic secrets setup (AWS, Database, etc.)
-- Vault policies as code
-- Kubernetes secret injection patterns
-
 ## Core Process
 
 ### 1. Provider Configuration
@@ -42,13 +31,13 @@ terraform {
 ```hcl
 # providers.tf
 
-## Option A: Token authentication (dev/staging)
+# Option A: Token authentication (dev/staging)
 provider "vault" {
   address = var.vault_address
   token   = var.vault_token  # Set via env VAULT_TOKEN in production
 }
 
-## Option B: AppRole for CI/CD
+# Option B: AppRole for CI/CD
 variable "vault_approle_role_id" {}
 variable "vault_approle_secret_id" {}
 
@@ -63,7 +52,7 @@ provider "vault" {
   }
 }
 
-## Option C: JWT/OIDC for HCP Terraform
+# Option C: JWT/OIDC for HCP Terraform
 provider "vault" {
   address = var.vault_address
   auth_login_jwt {
@@ -72,7 +61,7 @@ provider "vault" {
   }
 }
 
-## Option D: AWS IAM for EC2/Lambda
+# Option D: AWS IAM for EC2/Lambda
 provider "vault" {
   address = var.vault_address
   auth_login_aws {
@@ -89,6 +78,8 @@ export VAULT_TOKEN="s.xxx"           # Not for CI/CD
 export VAULT_CACERT="/path/to/ca.pem" # TLS certificate
 export VAULT_NAMESPACE="admin"        # Vault Enterprise namespace
 ```
+
+**Verify:** Run `vault status` to confirm connection before proceeding.
 
 ### 2. Secrets Engines Configuration
 
@@ -138,6 +129,8 @@ resource "vault_mount" "transit" {
 }
 ```
 
+**Verify:** Run `vault secrets list` to confirm all engines are mounted.
+
 **Step 2.2: KV v2 secrets**
 
 ```hcl
@@ -171,6 +164,8 @@ resource "aws_db_instance" "main" {
   password = data.vault_kv_secret_v2.db_creds.data["password"]
 }
 ```
+
+**Verify:** Run `vault kv get secret/production/app/config` to confirm secrets exist.
 
 **Step 2.3: AWS dynamic credentials**
 
@@ -221,6 +216,8 @@ provider "aws" {
 }
 ```
 
+**Verify:** Run `vault read aws/creds/deploy-role` to test dynamic credentials.
+
 **Step 2.4: Database dynamic credentials**
 
 ```hcl
@@ -262,6 +259,8 @@ data "vault_database_secret_backend_dynamic_credentials" "app" {
   role    = vault_database_secret_backend_role.app_role.name
 }
 ```
+
+**Verify:** Run `vault read database/creds/app-role` to test database credentials.
 
 **Step 2.5: PKI certificates**
 
@@ -310,6 +309,8 @@ output "private_key" {
 }
 ```
 
+**Verify:** Run `vault read pki/cert` to list certificates.
+
 **Step 2.6: Transit encryption**
 
 ```hcl
@@ -336,6 +337,8 @@ data "vault_transit_decrypt" "app_data" {
   ciphertext = data.vault_transit_encrypt.app_data.ciphertext
 }
 ```
+
+**Verify:** Run `vault transit keys` to list encryption keys.
 
 ### 3. Authentication Methods
 
@@ -375,6 +378,10 @@ output "approle_secret_id" {
 }
 ```
 
+**Verify:** Run `vault read auth/approle/role/terraform` to confirm role exists.
+
+**Test auth:** `vault write auth/approle/login role_id=<role_id> secret_id=<secret_id>`
+
 **Step 3.2: Kubernetes authentication**
 
 ```hcl
@@ -407,6 +414,8 @@ resource "vault_kubernetes_auth_backend_role" "app" {
   token_max_ttl = 86400
 }
 ```
+
+**Verify:** Run `vault read auth/kubernetes/role/app` to confirm role exists.
 
 **Step 3.3: JWT/OIDC for CI/CD (HCP Terraform)**
 
@@ -446,6 +455,8 @@ resource "vault_jwt_auth_backend_role" "terraform" {
 }
 ```
 
+**Verify:** Run `vault read auth/jwt/role/terraform-runner` to confirm role exists.
+
 **Step 3.4: AWS IAM authentication**
 
 ```hcl
@@ -477,6 +488,8 @@ resource "vault_aws_auth_backend_role" "ec2_role" {
   token_max_ttl  = 86400
 }
 ```
+
+**Verify:** Run `vault read auth/aws/role/ec2-app-role` to confirm role exists.
 
 ### 4. Vault Policies
 
@@ -541,6 +554,8 @@ EOT
 }
 ```
 
+**Verify:** Run `vault policy read terraform-policy` to confirm policy exists.
+
 **Step 4.2: Policy document data source (recommended)**
 
 ```hcl
@@ -572,334 +587,15 @@ resource "vault_policy" "app_secrets" {
 }
 ```
 
-### 5. Multi-Cloud Enterprise Patterns
+**Verify:** Run `vault policy list` to see all policies.
 
-**Step 5.1: Multiple provider configurations**
+### 5. Advanced Topics
 
-```hcl
-# providers.tf
+Advanced patterns for multi-cloud, Kubernetes, and Enterprise features are documented in separate reference files:
 
-# Default provider (production Vault)
-provider "vault" {
-  alias = "prod"
-  address = var.prod_vault_address
-  token   = var.prod_vault_token
-}
-
-# Staging Vault
-provider "vault" {
-  alias = "staging"
-  address = var.staging_vault_address
-  token   = var.staging_vault_token
-}
-
-# Use with resources
-resource "vault_kv_secret_v2" "prod_config" {
-  provider = vault.prod
-  mount    = "secret"
-  name     = "app/config"
-  data_json = jsonencode({ env = "production" })
-}
-
-resource "vault_kv_secret_v2" "staging_config" {
-  provider = vault.staging
-  mount    = "secret"
-  name     = "app/config"
-  data_json = jsonencode({ env = "staging" })
-}
-```
-
-**Step 5.2: Dynamic credentials for multiple clouds**
-
-```hcl
-# multi-cloud/dynamic-creds.tf
-
-# AWS credentials
-data "vault_aws_access_credentials" "aws_creds" {
-  backend = "aws"
-  role    = "deploy-role"
-}
-
-provider "aws" {
-  alias = "aws"
-  access_key = data.vault_aws_access_credentials.aws_creds.access_key
-  secret_key = data.vault_aws_access_credentials.aws_creds.secret_key
-  token     = data.vault_aws_access_credentials.aws_creds.session_token
-  region    = "us-east-1"
-}
-
-# Azure credentials
-data "vault_azure_access_credentials" "azure_creds" {
-  backend = "azure"
-  role    = "deploy-role"
-}
-
-provider "azurerm" {
-  alias = "azure"
-  client_id     = data.vault_azure_access_credentials.azure_creds.client_id
-  client_secret = data.vault_azure_access_credentials.azure_creds.client_secret
-  tenant_id     = var.azure_tenant_id
-  subscription_id = var.azure_subscription_id
-}
-
-# GCP credentials
-data "vault_gcp_access_credentials" "gcp_creds" {
-  backend = "gcp"
-  role    = "deploy-role"
-}
-
-provider "google" {
-  alias           = "gcp"
-  credentials     = data.vault_gcp_access_credentials.gcp_creds.credentials
-  project         = var.gcp_project
-  region          = "us-central1"
-}
-```
-
-### 6. Kubernetes Integration
-
-**Step 6.1: Vault Agent Injector with Helm**
-
-```hcl
-# kubernetes/vault-agent.tf
-
-resource "helm_release" "vault_agent" {
-  name             = "vault"
-  repository       = "https://helm.releases.hashicorp.com"
-  chart            = "vault"
-  namespace        = "vault"
-  create_namespace = true
-  version          = "0.27.0"
-
-  values = [
-    yamlencode({
-      injector = {
-        enabled = true
-        image = {
-          repository = "hashicorp/vault"
-          tag        = "1.15"
-        }
-      }
-
-      server = {
-        ha = {
-          enabled  = true
-          replicas = 3
-        }
-
-        dataStorage = {
-          size = "10Gi"
-        }
-
-        auditStorage = {
-          size = "10Gi"
-        }
-      }
-    })
-  ]
-
-  set {
-    name  = "server.dev.enabled"
-    value = "false"
-  }
-
-  set {
-    name  = "server.standalone.enabled"
-    value = "false"
-  }
-}
-```
-
-**Step 6.2: External Secrets Operator integration**
-
-```hcl
-# kubernetes/external-secrets.tf
-
-# Install ESO
-resource "helm_release" "external_secrets" {
-  name             = "external-secrets"
-  repository       = "https://charts.external-secrets.io"
-  chart            = "external-secrets"
-  namespace        = "external-secrets-system"
-  create_namespace = true
-  version          = "0.9.11"
-
-  set {
-    name  = "installCRDs"
-    value = "true"
-  }
-}
-
-# ClusterSecretStore for Vault
-resource "kubectl_manifest" "vault_secret_store" {
-  yaml_body = <<-YAML
-apiVersion: external-secrets.io/v1beta1
-kind: ClusterSecretStore
-metadata:
-  name: vault-backend
-spec:
-  provider:
-    vault:
-      server: "https://vault.example.com:8200"
-      path: "secret"
-      version: "v2"
-      auth:
-        kubernetes:
-          mountPath: "kubernetes"
-          role: "eso-role"
-  YAML
-}
-
-# ExternalSecret to sync Vault secrets
-resource "kubectl_manifest" "app_secret" {
-  yaml_body = <<-YAML
-apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: app-secrets
-  namespace: production
-spec:
-  refreshInterval: 1h
-  secretStoreRef:
-    name: vault-backend
-    kind: ClusterSecretStore
-  target:
-    name: app-secrets
-    creationPolicy: Owner
-  data:
-    - secretKey: database-url
-      remoteRef:
-        key: production/app/database
-        property: connection_string
-    - secretKey: api-key
-      remoteRef:
-        key: production/app/api
-        property: key
-  YAML
-
-  depends_on = [
-    helm_release.external_secrets,
-    kubectl_manifest.vault_secret_store
-  ]
-}
-```
-
-**Step 6.3: Vault Secrets Operator (HashiCorp official)**
-
-```hcl
-# kubernetes/vault-secrets-operator.tf
-
-# Install VSO
-resource "helm_release" "vso" {
-  name             = "vault-secrets-operator"
-  repository       = "https://helm.releases.hashicorp.com"
-  chart            = "vault-secrets-operator"
-  namespace        = "vault-secrets-operator"
-  create_namespace = true
-  version          = "0.5.0"
-}
-
-# VaultConnection
-resource "kubectl_manifest" "vault_connection" {
-  yaml_body = <<-YAML
-apiVersion: secrets.hashicorp.com/v1beta1
-kind: VaultConnection
-metadata:
-  name: vault-connection
-  namespace: vault-secrets-operator
-spec:
-  address: "https://vault.example.com:8200"
-  skipTLSVerify: false
-  caCertSecretRef:
-    name: vault-ca-cert
-    namespace: vault-secrets-operator
-  YAML
-}
-
-# VaultAuth (Kubernetes auth)
-resource "kubectl_manifest" "vault_auth" {
-  yaml_body = <<-YAML
-apiVersion: secrets.hashicorp.com/v1beta1
-kind: VaultAuth
-metadata:
-  name: vault-auth
-  namespace: production
-spec:
-  vaultConnectionRef: vault-connection
-  method: kubernetes
-  mount: kubernetes
-  kubernetes:
-    role: app-role
-    serviceAccount: app-service-account
-  YAML
-}
-
-# VaultStaticSecret (sync KV secrets)
-resource "kubectl_manifest" "app_config" {
-  yaml_body = <<-YAML
-apiVersion: secrets.hashicorp.com/v1beta1
-kind: VaultStaticSecret
-metadata:
-  name: app-config
-  namespace: production
-spec:
-  type: kv-v2
-  mount: secret
-  path: production/app/config
-  dest: create
-  refreshAfter: 24h
-  vaultAuthRef: vault-auth
-  metadata:
-    name: app-config-secret
-  YAML
-}
-```
-
-### 7. Vault Enterprise Namespaces
-
-**Step 7.1: Multi-tenant namespace structure**
-
-```hcl
-# namespaces/multi-tenant.tf
-
-# Create tenant namespaces
-resource "vault_namespace" "team_a" {
-  path = "team-a"
-}
-
-resource "vault_namespace" "team_b" {
-  path = "team-b"
-}
-
-# Nested namespace
-resource "vault_namespace" "team_a_project" {
-  namespace = vault_namespace.team_a.path
-  path      = "project-x"
-}
-
-# Provider for specific namespace
-provider "vault" {
-  alias    = "team_a"
-  address  = var.vault_address
-  token    = var.vault_token
-  namespace = vault_namespace.team_a.path
-}
-
-# Resources in specific namespace
-resource "vault_mount" "team_a_kv" {
-  provider = vault.team_a
-  path     = "secrets"
-  type     = "kv"
-  options  = { version = "2" }
-}
-
-resource "vault_kv_secret_v2" "team_a_secret" {
-  provider = vault.team_a
-  mount    = vault_mount.team_a_kv.path
-  name     = "config"
-  data_json = jsonencode({ key = "value" })
-}
-```
+- **Multi-Cloud Patterns**: [@docs/multi-cloud.md](docs/multi-cloud.md)
+- **Kubernetes Integration**: [@docs/kubernetes-integration.md](docs/kubernetes-integration.md)
+- **Enterprise Namespaces**: [@docs/namespaces.md](docs/namespaces.md)
 
 ## Security Best Practices
 
@@ -933,43 +629,57 @@ resource "vault_kv_secret_v2" "team_a_secret" {
    - Verify certificates
    - Rotate CA certificates
 
-## Common Pitfalls
-
-### DON'T:
-- Hardcode tokens or secrets in `.tf` files
-- Use root tokens in CI/CD
-- Grant `*` capabilities in policies
-- Store Terraform state locally with secrets
-- Skip TLS verification in production
-
-### DO:
-- Use environment variables for credentials
-- Use AppRole/JWT for machine authentication
-- Create specific policies per resource type
-- Use remote state with encryption
-- Enable and review audit logs
-
 ## Troubleshooting
 
 ### Error: "permission denied"
-- Check Vault policy has required capabilities
-- Verify token has `update` on `auth/token/create`
-- Check namespace configuration if using Vault Enterprise
+
+| Check | Command | Fix |
+|-------|---------|-----|
+| Policy exists | `vault policy list` | Apply policy with `vault policy write` |
+| Token has policy | `vault token lookup` | Check `policies` in output |
+| Token can create children | `vault read sys/auth/token/create` | Policy needs `update` capability |
+| Namespace (Enterprise) | `vault token lookup` | Check `namespace_path` field |
+
+**If still failing:** Verify policy path matches resource path exactly. Path `secret/data/*` does NOT grant access to `secret/*`.
 
 ### Error: "vault is sealed"
-- Unseal Vault with `vault operator unseal`
-- Check raft leader status
-- Verify storage backend connectivity
+
+1. Check seal status: `vault status`
+2. If sealed, unseal: `vault operator unseal <unseal_key>`
+3. Check raft status: `vault operator raft peer list`
+4. Verify storage connectivity
+
+**If leader election failed:** Wait for Raft to elect new leader or check storage backend logs.
 
 ### Error: "certificate verify failed"
-- Set `VAULT_CACERT` environment variable
-- Or set `ca_cert_file` in provider
-- For dev: `skip_tls_verify = true` (NOT in production)
 
-### Lease expired errors
-- Token TTL too short — increase `max_lease_ttl_seconds`
-- Plan ran too long — split into smaller applies
-- Use `skip_child_token = false`
+| Check | Fix |
+|-------|-----|
+| CA cert path | Set `VAULT_CACERT` env var |
+| Provider config | Add `ca_cert_file = "/path/to/ca.pem"` |
+| Dev environment | Set `skip_tls_verify = true` (NOT in production) |
+
+**If using self-signed certs:** Import root CA into system trust store or mount it explicitly.
+
+### Error: "lease expired" or "token not found"
+
+| Cause | Solution |
+|-------|----------|
+| Token TTL too short | Increase `max_lease_ttl_seconds` in provider |
+| Plan ran too long | Split into smaller `terraform apply` runs |
+| Token expired between plan/apply | Ensure plan and apply run within token TTL |
+
+**If using child tokens:** Verify parent token has `update` on `auth/token/create`.
+
+### Error: "resource not found" after apply
+
+| Check | Fix |
+|-------|-----|
+| Resource ID correct | Check resource address in state: `terraform state list` |
+| Wrong provider/namespace | Add `provider` or `namespace` attribute |
+| Import needed | Run `terraform import <address> <id>` |
+
+**If Vault not responding:** Check Vault is running: `vault status` and verify network connectivity.
 
 ## Reference
 
