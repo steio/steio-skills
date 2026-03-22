@@ -1,0 +1,60 @@
+{
+  "context": "Dynamic secrets configuration for database, PKI, transit, and AWS",
+  "type": "weighted_checklist",
+  "checklist": [
+    {
+      "name": "Database secrets engine configured",
+      "description": "vault_database_secret_backend_connection with PostgreSQL plugin",
+      "max_score": 15,
+      "category": "INTENT"
+    },
+    {
+      "name": "Database role with proper SQL",
+      "description": "vault_database_secret_backend_role with creation_statements for limited access",
+      "max_score": 15,
+      "category": "INTENT"
+    },
+    {
+      "name": "PKI secrets engine configured",
+      "description": "vault_pki_secret_backend with CA configuration",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "PKI role for certificates",
+      "description": "vault_pki_secret_backend_role with domain restrictions",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "Transit encryption key created",
+      "description": "vault_transit_secret_backend_key with aes256-gcm96 type",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "AWS secrets engine configured",
+      "description": "vault_aws_secret_backend with credentials",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "AWS role with IAM policy",
+      "description": "vault_aws_secret_backend_role with proper credential_type",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "Data sources for dynamic credentials",
+      "description": "vault_database_secret_backend_dynamic_credentials or vault_aws_access_credentials",
+      "max_score": 10,
+      "category": "INTENT"
+    },
+    {
+      "name": "Proper TTL settings",
+      "description": "TTL 1h and max_ttl 24h (or similar reasonable limits)",
+      "max_score": 10,
+      "category": "DESIGN"
+    }
+  ]
+}
